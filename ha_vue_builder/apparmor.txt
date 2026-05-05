@@ -1,0 +1,30 @@
+#include <tunables/global>
+
+profile ha_vue_builder flags=(complain,attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  capability,
+  file,
+
+  network inet stream,
+  network inet6 stream,
+
+  /init rix,
+  /run.sh rix,
+  /command/** rix,
+  /package/** rix,
+  /etc/** r,
+  /run/** rwk,
+  /var/run/** rwk,
+  /bin/** rix,
+  /sbin/** rix,
+  /usr/bin/** rix,
+  /usr/sbin/** rix,
+  /usr/lib/** rm,
+  /lib/** rm,
+  /app/** rix,
+  /data/** rw,
+  /share/ha-vue/** rwk,
+  /ha-config/www/ha-vue/** rwk,
+  /ha-config/www/ rw,
+}

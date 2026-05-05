@@ -1,0 +1,10 @@
+configuration:
+  dev_server:
+    name: Development server
+    description: Expose the app status/development endpoint through Home Assistant Ingress while static /local builds continue to run.
+  log_level:
+    name: Log level
+    description: Use debug only while diagnosing build or watcher behavior.
+  create_example:
+    name: Create example page
+    description: Create /share/ha-vue/pages/example/index.vue when no pages exist.

@@ -1,0 +1,19 @@
+{
+  "name": "ha-vue-builder",
+  "version": "0.2.5",
+  "description": "Home Assistant App builder for Vue pages, custom panels, and browser modules.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node src/main.mjs",
+    "validate": "node test/validate.mjs"
+  },
+  "dependencies": {
+    "@vitejs/plugin-vue": "6.0.1",
+    "chokidar": "4.0.3",
+    "vite": "7.3.2",
+    "vite-plugin-css-injected-by-js": "3.5.2",
+    "vue": "3.5.25"
+  },
+  "devDependencies": {}
+}

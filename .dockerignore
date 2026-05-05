@@ -1,0 +1,9 @@
+.git
+.codex
+.agents
+.playwright-mcp
+dashboard-*.png
+**/node_modules
+**/.npm-cache
+npm-debug.log*
+.tmp

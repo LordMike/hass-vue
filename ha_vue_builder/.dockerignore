@@ -1,0 +1,9 @@
+.git
+.codex
+.agents
+app/node_modules
+app/.npm-cache
+**/node_modules
+**/.npm-cache
+npm-debug.log*
+.tmp
