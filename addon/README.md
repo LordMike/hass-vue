@@ -1,6 +1,6 @@
-# HA Vue Builder
+# ha-vue
 
-HA Vue Builder is a Home Assistant App that watches Vue single-file components in `/config/ha-vue/pages` and builds each page into a standalone browser JavaScript module under `/config/www/ha-vue`.
+ha-vue is a Home Assistant App that watches Vue single-file components in `/config/ha-vue/pages` and builds each page into a standalone browser JavaScript module under `/config/www/ha-vue`.
 
 The same output can be used as a Home Assistant Lovelace custom card, a `panel_custom` page, or a plain Vue module mounted into any HTML page.
 
@@ -33,4 +33,4 @@ type: custom:ha-vue-page-example
 
 The same module can be used as `panel_custom` with `name: ha-vue-page-example`.
 
-See [DOCS.md](DOCS.md) for installation, workflow, security notes, and troubleshooting.
+Install it from `https://github.com/LordMike/hass-addons`. See [DOCS.md](DOCS.md) for workflow, security notes, and troubleshooting.

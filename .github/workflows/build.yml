@@ -20,7 +20,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ha_vue_builder/app
+        working-directory: app
 
     steps:
       - name: Checkout
@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: ha_vue_builder/app/package-lock.json
+          cache-dependency-path: app/package-lock.json
 
       - name: Install dependencies
         run: npm ci --ignore-scripts
@@ -49,4 +49,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build -t ha-vue-builder:ci ha_vue_builder
+        run: docker build -t ha-vue:ci -f addon/Dockerfile .

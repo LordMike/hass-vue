@@ -1,6 +1,6 @@
-name: HA Vue Builder
-version: 0.2.5
-slug: ha_vue_builder
+name: ha-vue
+version: 0.1.0
+slug: ha-vue
 description: Build Vue pages into Home Assistant custom cards, panels, and browser modules
 url: https://github.com/LordMike/hass-vue
 image: ghcr.io/lordmike/hass-vue

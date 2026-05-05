@@ -1,6 +1,6 @@
 #include <tunables/global>
 
-profile ha_vue_builder flags=(complain,attach_disconnected,mediate_deleted) {
+profile ha-vue flags=(complain,attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
 
   capability,

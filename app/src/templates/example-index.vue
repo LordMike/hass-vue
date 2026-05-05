@@ -83,7 +83,7 @@ watch(
     <header class="hero">
       <div>
         <p class="eyebrow">Home Assistant Vue module</p>
-        <h1>HA Vue Builder</h1>
+        <h1>ha-vue</h1>
         <p class="intro">
           This is a sample page. Edit
           <code>/config/ha-vue/pages/example/index.vue</code>,

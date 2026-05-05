@@ -62,7 +62,7 @@ export class StatusStore {
   toJson() {
     return {
       app: {
-        name: 'HA Vue Builder',
+        name: 'ha-vue',
         version: APP_VERSION
       },
       sourceRoot: this.paths.sourceRoot,
@@ -137,7 +137,7 @@ export function renderHtml(status) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="cache-control" content="no-store">
   <meta http-equiv="pragma" content="no-cache">
-  <title>HA Vue Builder Status</title>
+  <title>ha-vue Status</title>
   <style>
     body { margin: 0; padding: 24px; font-family: system-ui, sans-serif; color: #111; background: #fff; }
     main { max-width: 1100px; margin: 0 auto; }
@@ -162,7 +162,7 @@ export function renderHtml(status) {
 <body>
   <main>
     <header>
-      <h1>HA Vue Builder Status</h1>
+      <h1>ha-vue Status</h1>
       <p>Version ${escapeHtml(status.app.version)}. Generated ${escapeHtml(status.generatedAt)}.</p>
       <p>Source <code>${escapeHtml(status.sourceRoot)}</code></p>
       <p>Output <code>${escapeHtml(status.outputRoot)}</code></p>
@@ -214,7 +214,7 @@ export function renderHtml(status) {
     </section>
     <section>
       <h2>Screenshot Readiness</h2>
-      <p>DOM loaded is too early for screenshots. HA Vue Builder exposes an explicit readiness signal from the mounted page.</p>
+      <p>DOM loaded is too early for screenshots. ha-vue exposes an explicit readiness signal from the mounted page.</p>
       <table>
         <thead>
           <tr>

@@ -24,8 +24,8 @@ export function startDevServer(options, statusStore, logger) {
       return;
     }
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-    res.end(`<!doctype html><meta charset="utf-8"><title>HA Vue Builder</title>
-<h1>HA Vue Builder</h1>
+    res.end(`<!doctype html><meta charset="utf-8"><title>ha-vue</title>
+<h1>ha-vue</h1>
 <p>Static builds remain available under the configured Home Assistant <code>/local</code> output path.</p>
 <p>Vite HMR through Home Assistant Ingress is environment-dependent, so this endpoint exposes build status without changing the static output path.</p>
 <p><a href="./status.json">status.json</a></p>`);

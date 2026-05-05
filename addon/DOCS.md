@@ -1,20 +1,20 @@
-# HA Vue Builder Docs
+# ha-vue Docs
 
 ## What It Does
 
-HA Vue Builder turns Vue single-file components into standalone browser modules that can run as Home Assistant custom cards, `panel_custom` panels, or plain Vue apps mounted into arbitrary HTML. The static build output is written to `/config/www/ha-vue`, which Home Assistant serves as `/local/ha-vue`.
+ha-vue turns Vue single-file components into standalone browser modules that can run as Home Assistant custom cards, `panel_custom` panels, or plain Vue apps mounted into arbitrary HTML. The static build output is written to `/config/www/ha-vue`, which Home Assistant serves as `/local/ha-vue`.
 
-Failed builds do not replace the last successful output, so a syntax error in one page does not break working pages. The builder is intentionally page-agnostic: dashboards, tools, panels, status displays, and static or interactive HTML are all valid uses.
+Failed builds do not replace the last successful output, so a syntax error in one page does not break working pages. The app is intentionally page-agnostic: dashboards, tools, panels, status displays, and static or interactive HTML are all valid uses.
 
 ## Installation
 
-Add this repository as a Home Assistant App repository, install **HA Vue Builder**, and start it. The app maps:
+Add `https://github.com/LordMike/hass-addons` as a Home Assistant App repository, install **ha-vue**, and start it. This source repository is not intended to be added directly to Home Assistant. The app maps:
 
 - Home Assistant config read/write as `/ha-config`
 
 No npm commands are run at runtime. Dependencies are installed in the image with `npm ci --ignore-scripts --omit=dev`.
 
-Source pages are stored in the Home Assistant config folder at `/config/ha-vue` from the user's point of view. Inside the HA Vue Builder app container, that same folder is mounted as `/ha-config/ha-vue`.
+Source pages are stored in the Home Assistant config folder at `/config/ha-vue` from the user's point of view. Inside the ha-vue app container, that same folder is mounted as `/ha-config/ha-vue`.
 
 If you use the **Studio Code Server** app, open its Web UI and create or edit files under `/config/ha-vue`. Studio Code Server also runs as a Home Assistant app, but it exposes the Home Assistant config folder as `/config`, which is the path users normally see next to `configuration.yaml` and `www`.
 
@@ -46,7 +46,7 @@ Both paths must be under `/config`. `source_root` cannot be under `/config/www`,
       manifest.json
 ```
 
-Inside the HA Vue Builder app container, the source tree above is `/ha-config/ha-vue` and the output tree is `/ha-config/www/ha-vue`.
+Inside the ha-vue app container, the source tree above is `/ha-config/ha-vue` and the output tree is `/ha-config/www/ha-vue`.
 
 Valid page slugs match `^[a-z0-9][a-z0-9-]*$`.
 

@@ -9,7 +9,7 @@ import { discoverPages } from '../src/discover-pages.mjs';
 import { buildPage, removePageOutput } from '../src/build-page.mjs';
 import { StatusStore } from '../src/status.mjs';
 
-const root = await mkdtemp(path.join(tmpdir(), 'ha-vue-builder-'));
+const root = await mkdtemp(path.join(tmpdir(), 'ha-vue-'));
 const haConfigRoot = path.join(root, 'ha-config');
 await mkdir(path.join(haConfigRoot, 'www'), { recursive: true });
 

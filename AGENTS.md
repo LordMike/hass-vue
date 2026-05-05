@@ -1,11 +1,11 @@
 ## Purpose
 
-This repo is a Home Assistant add-on repository for HA Vue Builder. Optimize for predictable add-on behavior, clear generated output paths, and documentation that matches the Home Assistant install and runtime flow.
+This repo contains the source app and packaging for ha-vue. Optimize for predictable add-on behavior, clear generated output paths, and documentation that points installs through `hass-addons`.
 
 ## Do / Don’t
 
-- Do: keep `repository.yaml`, `ha_vue_builder/config.yaml`, package version, Docker labels, README, and changelog aligned when changing release metadata.
-- Do: update `ha_vue_builder/DOCS.md` when changing page discovery, generated URLs, runtime helpers, status output, or security behavior.
+- Do: keep `addon/config.yaml`, package version, Docker labels, README, and changelog aligned when changing release metadata.
+- Do: update `addon/DOCS.md` when changing page discovery, generated URLs, runtime helpers, status output, or security behavior.
 - Don’t: commit local Home Assistant screenshots, Playwright MCP logs, generated `/config/www` output, or `node_modules`.
 - Don’t: run the add-on daemon against real Home Assistant paths unless explicitly asked.
 
@@ -18,25 +18,25 @@ This repo is a Home Assistant add-on repository for HA Vue Builder. Optimize for
 
 ## Core workflows
 
-- Build: `docker build -t ha-vue-builder ha_vue_builder`
-- Test: `cd ha_vue_builder/app && npm run validate`
-- Run: `cd ha_vue_builder/app && npm start` DO NOT RUN AUTOMATICALLY UNLESS ASKED TO
+- Build: `docker build -t ha-vue -f addon/Dockerfile .`
+- Test: `cd app && npm run validate`
+- Run: `cd app && npm start` DO NOT RUN AUTOMATICALLY UNLESS ASKED TO
 
 ## Repo conventions
 
-- Root files describe the Home Assistant add-on repository.
-- Add-on implementation lives in `ha_vue_builder/`.
-- Node app code lives in `ha_vue_builder/app/src/` and uses ESM modules.
-- Runtime browser helpers live in `ha_vue_builder/app/src/runtime/`.
+- Root files describe the source app and release flow.
+- Add-on packaging lives in `addon/`.
+- Node app code lives in `app/src/` and uses ESM modules.
+- Runtime browser helpers live in `app/src/runtime/`.
 - Page slugs must match `^[a-z0-9][a-z0-9-]*$`.
 - Generated page element names use `ha-vue-page-<slug>`.
 
 ## Documentation upkeep
 
 - `README.md` — GitHub front page and quick orientation.
-- `ha_vue_builder/README.md` — compact add-on README.
-- `ha_vue_builder/DOCS.md` — detailed user workflow, generated YAML, runtime helper, security, and troubleshooting docs.
-- `ha_vue_builder/CHANGELOG.md` — user-visible release changes.
+- `addon/README.md` — compact add-on README.
+- `addon/DOCS.md` — detailed user workflow, generated YAML, runtime helper, security, and troubleshooting docs.
+- `addon/CHANGELOG.md` — user-visible release changes.
 
 ## When to split
 

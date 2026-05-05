@@ -1,5 +1,5 @@
-export const APP_ID = 'ha-vue-builder';
-export const APP_VERSION = '0.2.5';
+export const APP_ID = 'ha-vue';
+export const APP_VERSION = '0.1.0';
 
 export const DEFAULT_SOURCE_ROOT = '/ha-config/ha-vue';
 export const DEFAULT_HA_CONFIG_ROOT = '/ha-config';

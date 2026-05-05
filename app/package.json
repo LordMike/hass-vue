@@ -1,7 +1,7 @@
 {
-  "name": "ha-vue-builder",
-  "version": "0.2.5",
-  "description": "Home Assistant App builder for Vue pages, custom panels, and browser modules.",
+  "name": "ha-vue",
+  "version": "0.1.0",
+  "description": "Home Assistant app for Vue pages, custom panels, and browser modules.",
   "type": "module",
   "private": true,
   "scripts": {

@@ -37,7 +37,7 @@ jobs:
           fi
 
           if ! printf '%s' "$TAG" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "::error::Home Assistant release tags must match a.b.c with numeric components, for example 0.2.5. Do not use the usual vA.B.C prefix."
+            echo "::error::Home Assistant release tags must match a.b.c with numeric components, for example 0.1.0. Do not use the usual vA.B.C prefix."
             exit 1
           fi
 
@@ -50,7 +50,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ha_vue_builder/app
+        working-directory: app
 
     steps:
       - name: Checkout
@@ -58,12 +58,32 @@ jobs:
         with:
           ref: ${{ needs.validate.outputs.tag }}
 
+      - name: Verify version metadata
+        run: |
+          TAG="${{ needs.validate.outputs.tag }}"
+          ADDON_VERSION="$(sed -n 's/^version: //p' addon/config.yaml)"
+          PACKAGE_VERSION="$(node -p "require('./app/package.json').version")"
+          DOCKER_LABEL_VERSION="$(sed -n 's/.*io.hass.version="\\([^"]*\\)".*/\\1/p' addon/Dockerfile)"
+
+          if [ "$ADDON_VERSION" != "$TAG" ]; then
+            echo "::error::addon/config.yaml version $ADDON_VERSION does not match tag $TAG"
+            exit 1
+          fi
+          if [ "$PACKAGE_VERSION" != "$TAG" ]; then
+            echo "::error::app/package.json version $PACKAGE_VERSION does not match tag $TAG"
+            exit 1
+          fi
+          if [ "$DOCKER_LABEL_VERSION" != "$TAG" ]; then
+            echo "::error::addon/Dockerfile io.hass.version $DOCKER_LABEL_VERSION does not match tag $TAG"
+            exit 1
+          fi
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: ha_vue_builder/app/package-lock.json
+          cache-dependency-path: app/package-lock.json
 
       - name: Install dependencies
         run: npm ci --ignore-scripts
@@ -152,8 +172,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ha_vue_builder
-          file: ha_vue_builder/Dockerfile
+          context: .
+          file: addon/Dockerfile
           platforms: ${{ env.DOCKER_PLATFORMS }}
           push: true
           tags: |

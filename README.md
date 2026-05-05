@@ -1,11 +1,11 @@
-# HA Vue Builder
+# ha-vue
 
 ![Project status](https://img.shields.io/badge/status-experimental-orange)
 ![Build](https://github.com/LordMike/hass-vue/actions/workflows/build.yml/badge.svg?branch=master)
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-add--on-41bdf5)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-HA Vue Builder is a Home Assistant add-on repository for building Vue single-file components into standalone browser modules. It is for Home Assistant users who want to create completely custom views while still receiving the frontend `hass` object, including all entity states and live updates.
+ha-vue is a Home Assistant add-on source repository for building Vue single-file components into standalone browser modules. It is for Home Assistant users who want to create completely custom views while still receiving the frontend `hass` object, including all entity states and live updates.
 
 That makes it useful for views where Lovelace is too constrained, such as a black-and-white e-paper dashboard where every pixel, layout rule, and rendered state needs to be controlled directly. Each page lives under `/config/ha-vue/pages`, builds independently with Vue and Vite, and is published to `/config/www/ha-vue` for Home Assistant to serve as `/local/ha-vue`.
 
@@ -15,8 +15,8 @@ Failed builds keep the last successful output in place, and the add-on writes a 
 
 ## Quickstart
 
-- Add this repository to Home Assistant as an add-on repository: `https://github.com/LordMike/hass-vue`
-- Install and start **HA Vue Builder**.
+- Install the add-on from the central add-on repository: `https://github.com/LordMike/hass-addons`
+- Install and start **ha-vue**.
 - Open `/local/ha-vue/status.html` after the first build, then edit `/config/ha-vue/pages/example/index.vue`.
 - With the **Studio Code Server** add-on, open its Web UI and edit `/config/ha-vue` directly from the Explorer.
 
@@ -32,9 +32,9 @@ Failed builds keep the last successful output in place, and the add-on writes a 
 
 ## Documentation
 
-- [Add-on README](ha_vue_builder/README.md) — compact install and first-use notes.
-- [Full docs](ha_vue_builder/DOCS.md) — page layout, Lovelace resources, `panel_custom`, runtime helpers, status output, security notes, and troubleshooting.
-- [Changelog](ha_vue_builder/CHANGELOG.md) — release notes.
+- [Add-on README](addon/README.md) — compact install and first-use notes.
+- [Full docs](addon/DOCS.md) — page layout, Lovelace resources, `panel_custom`, runtime helpers, status output, security notes, and troubleshooting.
+- [Changelog](addon/CHANGELOG.md) — release notes.
 
 ## Usage
 
@@ -104,18 +104,20 @@ Both path options must stay under `/config`. The source root cannot be inside `/
 
 ## Deployment
 
-This repository is laid out as a Home Assistant add-on repository:
+This repository contains the source for the `ha-vue` add-on. User-facing installation is published through the central Home Assistant add-on repository at `https://github.com/LordMike/hass-addons`.
 
 ```text
-repository.yaml
-ha_vue_builder/
+addon/
   config.yaml
   Dockerfile
   run.sh
-  app/
+app/
+  package.json
+  src/
+  test/
 ```
 
-Home Assistant installs use the published multi-arch Docker image declared in `ha_vue_builder/config.yaml`:
+Home Assistant installs from `hass-addons` use the published multi-arch Docker image declared in `addon/config.yaml`:
 
 ```text
 ghcr.io/lordmike/hass-vue
@@ -129,7 +131,7 @@ npm ci --ignore-scripts --omit=dev
 
 At runtime it watches the configured `source_root` inside the add-on container. With defaults, users see those source folders as `/config/ha-vue/pages` and `/config/ha-vue/shared` in Home Assistant file editors such as Studio Code Server, while the add-on sees them as `/ha-config/ha-vue/pages` and `/ha-config/ha-vue/shared`. Built output is written to the configured `output_root`; with defaults this is `/ha-config/www/ha-vue` inside the add-on and `/config/www/ha-vue` for users, served by Home Assistant as `/local/ha-vue`.
 
-Version tags must use plain numeric semantic versions such as `0.2.5`. The release workflow intentionally rejects the usual `v0.2.5` prefix because Home Assistant add-on versions require the unprefixed form.
+Version tags must use plain numeric semantic versions such as `0.1.0`. The release workflow intentionally rejects the usual `v0.1.0` prefix because Home Assistant add-on versions require the unprefixed form.
 
 Tagged releases publish Docker images to GitHub Container Registry:
 
@@ -143,7 +145,7 @@ ghcr.io/lordmike/hass-vue:latest
 Run the validation script from the app folder:
 
 ```bash
-cd ha_vue_builder/app
+cd app
 npm ci
 npm run validate
 ```

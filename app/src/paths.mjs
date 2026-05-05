@@ -44,7 +44,7 @@ export async function validatePaths(logger, options = {}) {
   }
   const localOutputRoot = `/local/${path.relative(realWww, realOutput).split(path.sep).join('/')}`;
 
-  await writeFile(path.join(realOutput, OUTPUT_ROOT_MARKER), 'managed by HA Vue Builder\n');
+  await writeFile(path.join(realOutput, OUTPUT_ROOT_MARKER), 'managed by ha-vue\n');
   await mkdir(path.join(realOutput, 'pages'), { recursive: true });
   await mkdir(path.join(realOutput, '.tmp'), { recursive: true });
 
