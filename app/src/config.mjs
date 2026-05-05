@@ -6,11 +6,11 @@ const DEFAULT_OPTIONS = {
   dev_server: false,
   log_level: 'info',
   create_example: true,
-  source_root: '/config/ha-vue',
-  output_root: '/config/www/ha-vue'
+  source_root: '/config/hass-vue',
+  output_root: '/config/www/hass-vue'
 };
 
-export async function loadConfig(optionsPath = process.env.HA_VUE_OPTIONS_PATH || '/data/options.json') {
+export async function loadConfig(optionsPath = process.env.HASS_VUE_OPTIONS_PATH || '/data/options.json') {
   let raw = {};
   try {
     raw = JSON.parse(await readFile(optionsPath, 'utf8'));
@@ -25,7 +25,7 @@ export async function loadConfig(optionsPath = process.env.HA_VUE_OPTIONS_PATH |
   config.source_root = normalizeUserConfigPath(config.source_root, DEFAULT_OPTIONS.source_root, 'source_root');
   config.output_root = normalizeUserConfigPath(config.output_root, DEFAULT_OPTIONS.output_root, 'output_root');
   validateConfiguredRoots(config.source_root, config.output_root);
-  const internalConfigRoot = process.env.HA_VUE_HA_CONFIG_ROOT || DEFAULT_HA_CONFIG_ROOT;
+  const internalConfigRoot = process.env.HASS_VUE_HA_CONFIG_ROOT || DEFAULT_HA_CONFIG_ROOT;
   config.internal_source_root = toInternalConfigPath(config.source_root, DEFAULT_SOURCE_ROOT, internalConfigRoot);
   config.internal_output_root = toInternalConfigPath(config.output_root, path.join(internalConfigRoot, OUTPUT_SUBDIR), internalConfigRoot);
   return config;

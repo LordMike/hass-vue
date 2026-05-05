@@ -27,7 +27,7 @@ export async function discoverPages(paths, options, logger) {
     }
 
     const meta = await readPageMeta(sourceDir, slug);
-    const elementName = `ha-vue-page-${slug}`;
+    const elementName = `hass-vue-page-${slug}`;
     const page = {
       slug,
       title: meta.title,

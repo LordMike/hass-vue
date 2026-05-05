@@ -1,6 +1,6 @@
 ## Purpose
 
-This repo contains the source app and packaging for ha-vue. Optimize for predictable add-on behavior, clear generated output paths, and documentation that points installs through `hass-addons`.
+This repo contains the source app and packaging for hass-vue. Optimize for predictable add-on behavior, clear generated output paths, and documentation that points installs through `hass-addons`.
 
 ## Do / Don’t
 
@@ -18,7 +18,7 @@ This repo contains the source app and packaging for ha-vue. Optimize for predict
 
 ## Core workflows
 
-- Build: `docker build -t ha-vue -f addon/Dockerfile .`
+- Build: `docker build -t hass-vue -f addon/Dockerfile .`
 - Test: `cd app && npm run validate`
 - Run: `cd app && npm start` DO NOT RUN AUTOMATICALLY UNLESS ASKED TO
 
@@ -29,7 +29,7 @@ This repo contains the source app and packaging for ha-vue. Optimize for predict
 - Node app code lives in `app/src/` and uses ESM modules.
 - Runtime browser helpers live in `app/src/runtime/`.
 - Page slugs must match `^[a-z0-9][a-z0-9-]*$`.
-- Generated page element names use `ha-vue-page-<slug>`.
+- Generated page element names use `hass-vue-page-<slug>`.
 
 ## Documentation upkeep
 

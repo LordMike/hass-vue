@@ -1,7 +1,7 @@
 import { createApp, nextTick, type App, type Component } from 'vue';
 import { refreshHassSnapshot, registerReadinessController, setHass } from './hass';
 
-export type MountedHaVuePage = {
+export type MountedHassVuePage = {
   app: App<Element>;
   element: Element;
   updateHass: (hass: unknown) => void;
@@ -10,7 +10,7 @@ export type MountedHaVuePage = {
   unmount: () => void;
 };
 
-export type MountHaVuePageOptions = {
+export type MountHassVuePageOptions = {
   hass?: unknown;
   config?: Record<string, unknown>;
   snapshot?: boolean;
@@ -23,7 +23,7 @@ type PageElementOptions = {
   component: Component;
 };
 
-export function mountHaVuePage(component: Component, target: Element, options: MountHaVuePageOptions = {}): MountedHaVuePage {
+export function mountHassVuePage(component: Component, target: Element, options: MountHassVuePageOptions = {}): MountedHassVuePage {
   injectStoredStyles(target);
   const readiness = createReadiness(target);
   const unregisterReadiness = registerReadinessController(readiness);
@@ -75,11 +75,11 @@ export function mountHaVuePage(component: Component, target: Element, options: M
   };
 }
 
-export function defineHaVuePageElement({ elementName, component }: PageElementOptions) {
+export function defineHassVuePageElement({ elementName, component }: PageElementOptions) {
   if (customElements.get(elementName)) return;
 
-  class HaVuePageElement extends HTMLElement {
-    private mounted: MountedHaVuePage | null = null;
+  class HassVuePageElement extends HTMLElement {
+    private mounted: MountedHassVuePage | null = null;
     private mountPoint: HTMLElement | null = null;
     private currentHass: unknown = null;
     private config: Record<string, unknown> = {};
@@ -108,7 +108,7 @@ export function defineHaVuePageElement({ elementName, component }: PageElementOp
       this.mountPoint = document.createElement('div');
       this.mountPoint.style.display = 'contents';
       this.appendChild(this.mountPoint);
-      this.mounted = mountHaVuePage(component, this.mountPoint, {
+      this.mounted = mountHassVuePage(component, this.mountPoint, {
         config: this.config,
         hass: this.currentHass,
         ...this.mountOptions
@@ -125,7 +125,7 @@ export function defineHaVuePageElement({ elementName, component }: PageElementOp
     }
   }
 
-  customElements.define(elementName, HaVuePageElement);
+  customElements.define(elementName, HassVuePageElement);
 }
 
 function createReadiness(target: Element) {
@@ -146,31 +146,31 @@ function createReadiness(target: Element) {
       const payload = { ready: true, at: new Date().toISOString(), ...detail };
       setReadyAttributes(target, true, payload);
       setReadyAttributes(host, true, payload);
-      dispatch('ha-vue-ready', payload);
+      dispatch('hass-vue-ready', payload);
     },
     markBusy(detail: Record<string, unknown> = {}) {
       const payload = { ready: false, at: new Date().toISOString(), ...detail };
       setReadyAttributes(target, false, payload);
       setReadyAttributes(host, false, payload);
-      dispatch('ha-vue-busy', payload);
+      dispatch('hass-vue-busy', payload);
     }
   };
 }
 
 function setReadyAttributes(target: Element, ready: boolean, detail: Record<string, unknown>) {
-  target.setAttribute('data-ha-vue-ready', ready ? 'true' : 'false');
-  target.setAttribute('data-ha-vue-ready-at', String(detail.at || ''));
-  if (detail.reason) target.setAttribute('data-ha-vue-ready-reason', String(detail.reason));
+  target.setAttribute('data-hass-vue-ready', ready ? 'true' : 'false');
+  target.setAttribute('data-hass-vue-ready-at', String(detail.at || ''));
+  if (detail.reason) target.setAttribute('data-hass-vue-ready-reason', String(detail.reason));
 }
 
-function readMountOptions(): Pick<MountHaVuePageOptions, 'snapshot' | 'readyMode' | 'readyTimeoutMs'> {
+function readMountOptions(): Pick<MountHassVuePageOptions, 'snapshot' | 'readyMode' | 'readyTimeoutMs'> {
   const params = new URLSearchParams(globalThis.location?.search || '');
-  const snapshot = parseBoolean(params.get('ha-vue-snapshot') || params.get('snapshot'));
-  const readyModeParam = params.get('ha-vue-ready') || params.get('ready');
+  const snapshot = parseBoolean(params.get('hass-vue-snapshot') || params.get('snapshot'));
+  const readyModeParam = params.get('hass-vue-ready') || params.get('ready');
   const readyMode = ['mounted', 'snapshot', 'manual'].includes(String(readyModeParam))
-    ? readyModeParam as MountHaVuePageOptions['readyMode']
+    ? readyModeParam as MountHassVuePageOptions['readyMode']
     : undefined;
-  const readyTimeoutMs = Number(params.get('ha-vue-ready-timeout-ms') || params.get('readyTimeoutMs') || '');
+  const readyTimeoutMs = Number(params.get('hass-vue-ready-timeout-ms') || params.get('readyTimeoutMs') || '');
 
   return {
     snapshot,
@@ -184,7 +184,7 @@ function parseBoolean(value: string | null) {
 }
 
 function injectStoredStyles(target: Element) {
-  const styles = (globalThis as any).__HA_VUE_BUILDER_STYLES__;
+  const styles = (globalThis as any).__HASS_VUE_BUILDER_STYLES__;
   if (!Array.isArray(styles) || styles.length === 0) return;
 
   const root = target.getRootNode();
@@ -194,10 +194,10 @@ function injectStoredStyles(target: Element) {
 
   for (const entry of styles) {
     if (!entry?.id || !entry?.css) continue;
-    const selector = `style[data-ha-vue-style="${cssEscape(entry.id)}"]`;
+    const selector = `style[data-hass-vue-style="${cssEscape(entry.id)}"]`;
     if (container.querySelector(selector)) continue;
     const style = document.createElement('style');
-    style.setAttribute('data-ha-vue-style', entry.id);
+    style.setAttribute('data-hass-vue-style', entry.id);
     style.appendChild(document.createTextNode(entry.css));
     container.appendChild(style);
   }

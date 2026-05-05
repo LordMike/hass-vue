@@ -32,15 +32,15 @@ export async function buildPage(page, paths, logger, reason = 'manual') {
       plugins: [
         vue(),
         cssInjectedByJsPlugin({
-          styleId: `ha-vue-page-${page.slug}`,
-          injectCodeFunction: haVueCssInject
+          styleId: `hass-vue-page-${page.slug}`,
+          injectCodeFunction: hassVueCssInject
         })
       ],
       resolve: {
         alias: {
           vue: path.join(paths.appRoot, 'node_modules/vue/dist/vue.runtime.esm-browser.prod.js'),
-          '@ha-vue/hass': path.join(paths.appRoot, 'src/runtime/hass.ts'),
-          '@ha-vue/create-page-element': path.join(paths.appRoot, 'src/runtime/createPageElement.ts')
+          '@hass-vue/hass': path.join(paths.appRoot, 'src/runtime/hass.ts'),
+          '@hass-vue/create-page-element': path.join(paths.appRoot, 'src/runtime/createPageElement.ts')
         }
       },
       build: {
@@ -137,34 +137,34 @@ export async function removeOrphanOutputs(pages, paths, logger) {
 function entrySource(page) {
   const componentPath = JSON.stringify(page.sourcePath);
   return `import Page from ${componentPath};
-import { defineHaVuePageElement, mountHaVuePage as mountComponentPage } from '@ha-vue/create-page-element';
+import { defineHassVuePageElement, mountHassVuePage as mountComponentPage } from '@hass-vue/create-page-element';
 
 export const pageSlug = ${JSON.stringify(page.slug)};
 export const elementName = ${JSON.stringify(page.elementName)};
 export const cardType = ${JSON.stringify(page.cardType)};
 
-export function mountHaVuePage(target, options = {}) {
+export function mountHassVuePage(target, options = {}) {
   return mountComponentPage(Page, target, options);
 }
 
-export function unmountHaVuePage(mounted) {
+export function unmountHassVuePage(mounted) {
   mounted?.unmount?.();
 }
 
-export function setHaVueHass(mounted, hass) {
+export function setHassVueHass(mounted, hass) {
   mounted?.updateHass?.(hass);
 }
 
-defineHaVuePageElement({
+defineHassVuePageElement({
   elementName,
   component: Page
 });
 `;
 }
 
-function haVueCssInject(cssCode, options = {}) {
-  const id = options.styleId || 'ha-vue-page-style';
-  const storeName = '__HA_VUE_BUILDER_STYLES__';
+function hassVueCssInject(cssCode, options = {}) {
+  const id = options.styleId || 'hass-vue-page-style';
+  const storeName = '__HASS_VUE_BUILDER_STYLES__';
   const globalTarget = globalThis;
   const existing = globalTarget[storeName] || [];
   if (!existing.some((entry) => entry.id === id && entry.css === cssCode)) {
@@ -172,10 +172,10 @@ function haVueCssInject(cssCode, options = {}) {
   }
 
   if (typeof document === 'undefined') return;
-  const selector = `style[data-ha-vue-style="${id}"]`;
+  const selector = `style[data-hass-vue-style="${id}"]`;
   if (document.head.querySelector(selector)) return;
   const style = document.createElement('style');
-  style.setAttribute('data-ha-vue-style', id);
+  style.setAttribute('data-hass-vue-style', id);
   style.appendChild(document.createTextNode(cssCode));
   document.head.appendChild(style);
 }
@@ -200,14 +200,14 @@ async function loadBuiltModule() {
         else if (manifest?.moduleFile) moduleUrl = './' + manifest.moduleFile;
       }
     } catch (error) {
-      console.warn('[ha-vue] manifest fetch failed, using fallback module', error);
+      console.warn('[hass-vue] manifest fetch failed, using fallback module', error);
     }
     return import(new URL(moduleUrl, import.meta.url).href);
   })();
   return loadedModulePromise;
 }
 
-class HaVueLoaderElement extends HTMLElement {
+class HassVueLoaderElement extends HTMLElement {
   #mounted = null;
   #target = null;
   #hass = null;
@@ -238,13 +238,13 @@ class HaVueLoaderElement extends HTMLElement {
     this.appendChild(this.#target);
     loadBuiltModule().then((mod) => {
       if (!this.#target || this.#mounted) return;
-      this.#mounted = mod.mountHaVuePage(this.#target, {
+      this.#mounted = mod.mountHassVuePage(this.#target, {
         hass: this.#hass,
         config: this.#config,
         ...this.#mountOptions
       });
     }).catch((error) => {
-      console.error('[ha-vue] failed to load page module', error);
+      console.error('[hass-vue] failed to load page module', error);
     });
   }
 
@@ -257,34 +257,34 @@ class HaVueLoaderElement extends HTMLElement {
 }
 
 if (!customElements.get(elementName)) {
-  customElements.define(elementName, HaVueLoaderElement);
+  customElements.define(elementName, HassVueLoaderElement);
 }
 
 export const pageSlug = ${JSON.stringify(page.slug)};
 export { elementName };
 export const cardType = ${JSON.stringify(page.cardType)};
 
-export async function mountHaVuePage(target, options = {}) {
+export async function mountHassVuePage(target, options = {}) {
   const mod = await loadBuiltModule();
-  return mod.mountHaVuePage(target, options);
+  return mod.mountHassVuePage(target, options);
 }
 
-export async function unmountHaVuePage(mounted) {
+export async function unmountHassVuePage(mounted) {
   return mounted?.unmount?.();
 }
 
-export async function setHaVueHass(mounted, hass) {
+export async function setHassVueHass(mounted, hass) {
   return mounted?.updateHass?.(hass);
 }
 
 function readMountOptions() {
   const params = new URLSearchParams(globalThis.location?.search || '');
-  const snapshot = parseBoolean(params.get('ha-vue-snapshot') || params.get('snapshot'));
-  const readyModeParam = params.get('ha-vue-ready') || params.get('ready');
+  const snapshot = parseBoolean(params.get('hass-vue-snapshot') || params.get('snapshot'));
+  const readyModeParam = params.get('hass-vue-ready') || params.get('ready');
   const readyMode = ['mounted', 'snapshot', 'manual'].includes(String(readyModeParam))
     ? readyModeParam
     : undefined;
-  const readyTimeoutMs = Number(params.get('ha-vue-ready-timeout-ms') || params.get('readyTimeoutMs') || '');
+  const readyTimeoutMs = Number(params.get('hass-vue-ready-timeout-ms') || params.get('readyTimeoutMs') || '');
   return {
     snapshot,
     readyMode,

@@ -8,9 +8,9 @@ import {
 } from './constants.mjs';
 
 export async function validatePaths(logger, options = {}) {
-  const sourceRoot = process.env.HA_VUE_SOURCE_ROOT || options.internal_source_root || DEFAULT_SOURCE_ROOT;
-  const haConfigRoot = process.env.HA_VUE_HA_CONFIG_ROOT || DEFAULT_HA_CONFIG_ROOT;
-  const outputRoot = process.env.HA_VUE_OUTPUT_ROOT || options.internal_output_root || path.join(haConfigRoot, OUTPUT_SUBDIR);
+  const sourceRoot = process.env.HASS_VUE_SOURCE_ROOT || options.internal_source_root || DEFAULT_SOURCE_ROOT;
+  const haConfigRoot = process.env.HASS_VUE_HA_CONFIG_ROOT || DEFAULT_HA_CONFIG_ROOT;
+  const outputRoot = process.env.HASS_VUE_OUTPUT_ROOT || options.internal_output_root || path.join(haConfigRoot, OUTPUT_SUBDIR);
   const pagesRoot = path.join(sourceRoot, 'pages');
   const sharedRoot = path.join(sourceRoot, 'shared');
   const wwwRoot = path.join(haConfigRoot, 'www');
@@ -27,7 +27,7 @@ export async function validatePaths(logger, options = {}) {
   const resolvedWww = path.resolve(realWww);
   const resolvedHaConfig = path.resolve(realHaConfig);
 
-  if (!isPathInside(resolvedOutput, resolvedWww) && resolvedOutput !== path.join(resolvedWww, 'ha-vue')) {
+  if (!isPathInside(resolvedOutput, resolvedWww) && resolvedOutput !== path.join(resolvedWww, 'hass-vue')) {
     throw new Error(`Output root must resolve under ${resolvedWww}: ${resolvedOutput}`);
   }
   if (resolvedOutput === resolvedHaConfig || resolvedOutput === resolvedWww) {
@@ -44,7 +44,7 @@ export async function validatePaths(logger, options = {}) {
   }
   const localOutputRoot = `/local/${path.relative(realWww, realOutput).split(path.sep).join('/')}`;
 
-  await writeFile(path.join(realOutput, OUTPUT_ROOT_MARKER), 'managed by ha-vue\n');
+  await writeFile(path.join(realOutput, OUTPUT_ROOT_MARKER), 'managed by hass-vue\n');
   await mkdir(path.join(realOutput, 'pages'), { recursive: true });
   await mkdir(path.join(realOutput, '.tmp'), { recursive: true });
 

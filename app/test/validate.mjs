@@ -9,19 +9,19 @@ import { discoverPages } from '../src/discover-pages.mjs';
 import { buildPage, removePageOutput } from '../src/build-page.mjs';
 import { StatusStore } from '../src/status.mjs';
 
-const root = await mkdtemp(path.join(tmpdir(), 'ha-vue-'));
+const root = await mkdtemp(path.join(tmpdir(), 'hass-vue-'));
 const haConfigRoot = path.join(root, 'ha-config');
 await mkdir(path.join(haConfigRoot, 'www'), { recursive: true });
 
-process.env.HA_VUE_HA_CONFIG_ROOT = haConfigRoot;
+process.env.HASS_VUE_HA_CONFIG_ROOT = haConfigRoot;
 
 const logger = createLogger('info');
 try {
   const loadedDefaults = await loadConfig(path.join(root, 'missing-options.json'));
-  assert.equal(loadedDefaults.source_root, '/config/ha-vue');
-  assert.equal(loadedDefaults.output_root, '/config/www/ha-vue');
-  assert.equal(loadedDefaults.internal_source_root, path.join(haConfigRoot, 'ha-vue'));
-  assert.equal(loadedDefaults.internal_output_root, path.join(haConfigRoot, 'www', 'ha-vue'));
+  assert.equal(loadedDefaults.source_root, '/config/hass-vue');
+  assert.equal(loadedDefaults.output_root, '/config/www/hass-vue');
+  assert.equal(loadedDefaults.internal_source_root, path.join(haConfigRoot, 'hass-vue'));
+  assert.equal(loadedDefaults.internal_output_root, path.join(haConfigRoot, 'www', 'hass-vue'));
 
   const customOptionsPath = path.join(root, 'options.json');
   await writeFile(customOptionsPath, JSON.stringify({
@@ -40,7 +40,7 @@ try {
   assert.equal(customPaths.localOutputRoot, '/local/custom-vue');
 
   const invalidOutsideConfigPath = path.join(root, 'invalid-outside-config.json');
-  await writeFile(invalidOutsideConfigPath, JSON.stringify({ source_root: '/share/ha-vue' }));
+  await writeFile(invalidOutsideConfigPath, JSON.stringify({ source_root: '/share/hass-vue' }));
   await assert.rejects(loadConfig(invalidOutsideConfigPath), /source_root must be under \/config/);
 
   const invalidPublicSourcePath = path.join(root, 'invalid-public-source.json');
@@ -49,14 +49,14 @@ try {
 
   const invalidOverlapPath = path.join(root, 'invalid-overlap.json');
   await writeFile(invalidOverlapPath, JSON.stringify({
-    source_root: '/config/ha-vue',
-    output_root: '/config/ha-vue/out'
+    source_root: '/config/hass-vue',
+    output_root: '/config/hass-vue/out'
   }));
   await assert.rejects(loadConfig(invalidOverlapPath), /must not overlap/);
 
   const options = { ...loadedDefaults, create_example: false, dev_server: false, log_level: 'info' };
   const paths = await validatePaths(logger, options);
-  assert.equal(paths.localOutputRoot, '/local/ha-vue');
+  assert.equal(paths.localOutputRoot, '/local/hass-vue');
   const exampleDiscovery = await discoverPages(paths, { ...options, create_example: true }, logger);
   assert.equal(exampleDiscovery.pages.length, 1);
   assert.equal(exampleDiscovery.pages[0].slug, 'example');
@@ -80,14 +80,14 @@ try {
   assert.match(pageModule, /customElements/);
   assert.match(pageModule, /manifest\.json/);
   assert.doesNotMatch(pageModule, /process\.env/);
-  assert.match(pageModule, /mountHaVuePage/);
-  assert.match(pageModule, /unmountHaVuePage/);
+  assert.match(pageModule, /mountHassVuePage/);
+  assert.match(pageModule, /unmountHassVuePage/);
   const manifest = JSON.parse(await readFile(path.join(page.outputDir, 'manifest.json'), 'utf8'));
   assert.match(manifest.moduleFile, /^page\..+\.js$/);
   const versionedModule = await readFile(path.join(page.outputDir, manifest.moduleFile), 'utf8');
   assert.match(versionedModule, /First/);
   assert.match(versionedModule, /font-weight/);
-  await readFile(path.join(page.outputDir, '.ha-vue-page-output'), 'utf8');
+  await readFile(path.join(page.outputDir, '.hass-vue-page-output'), 'utf8');
 
   await writeFile(path.join(pageDir, 'index.vue'), `<template><main>Second</main></template>`);
   const second = await buildPage(page, paths, logger, 'test-modify');
@@ -108,7 +108,7 @@ try {
   const stillGoodManifest = JSON.parse(await readFile(path.join(page.outputDir, 'manifest.json'), 'utf8'));
   assert.equal(stillGoodManifest.moduleFile, secondManifest.moduleFile);
 
-  await rm(path.join(page.outputDir, '.ha-vue-page-output'));
+  await rm(path.join(page.outputDir, '.hass-vue-page-output'));
   const skipped = await removePageOutput(page, logger);
   assert.equal(skipped, false);
   pageModule = await readFile(page.outputPath, 'utf8');
@@ -121,7 +121,7 @@ try {
   const unmarkedReplaceManifest = JSON.parse(await readFile(path.join(page.outputDir, 'manifest.json'), 'utf8'));
   assert.equal(unmarkedReplaceManifest.moduleFile, secondManifest.moduleFile);
 
-  await writeFile(path.join(page.outputDir, '.ha-vue-page-output'), 'managed\n');
+  await writeFile(path.join(page.outputDir, '.hass-vue-page-output'), 'managed\n');
   const removed = await removePageOutput(page, logger);
   assert.equal(removed, true);
   await assert.rejects(readFile(page.outputPath, 'utf8'));

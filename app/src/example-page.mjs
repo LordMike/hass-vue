@@ -9,7 +9,7 @@ export async function createExamplePage(paths, logger) {
     if (error.code !== 'EEXIST') throw error;
   });
   await writeFile(path.join(dir, 'page.json'), JSON.stringify({
-    title: 'ha-vue',
+    title: 'hass-vue',
     description: 'Example Home Assistant Vue page'
   }, null, 2), { flag: 'wx' }).catch((error) => {
     if (error.code !== 'EEXIST') throw error;

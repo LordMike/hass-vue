@@ -1,6 +1,6 @@
-name: ha-vue
+name: hass-vue
 version: 0.1.0
-slug: ha-vue
+slug: hass-vue
 description: Build Vue pages into Home Assistant custom cards, panels, and browser modules
 url: https://github.com/LordMike/hass-vue
 image: ghcr.io/lordmike/hass-vue
@@ -22,8 +22,8 @@ options:
   dev_server: false
   log_level: info
   create_example: true
-  source_root: /config/ha-vue
-  output_root: /config/www/ha-vue
+  source_root: /config/hass-vue
+  output_root: /config/www/hass-vue
 schema:
   dev_server: bool
   log_level: list(info|debug)

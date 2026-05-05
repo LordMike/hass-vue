@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
-import { getSnapshotStateValue, hassRef, hassSnapshotRef } from '@ha-vue/hass';
+import { getSnapshotStateValue, hassRef, hassSnapshotRef } from '@hass-vue/hass';
 
 const now = ref(new Date());
 const updateLog = ref([]);
@@ -83,10 +83,10 @@ watch(
     <header class="hero">
       <div>
         <p class="eyebrow">Home Assistant Vue module</p>
-        <h1>ha-vue</h1>
+        <h1>hass-vue</h1>
         <p class="intro">
           This is a sample page. Edit
-          <code>/config/ha-vue/pages/example/index.vue</code>,
+          <code>/config/hass-vue/pages/example/index.vue</code>,
           wait for a successful rebuild in the app log, then refresh this Home Assistant page.
         </p>
       </div>

@@ -62,7 +62,7 @@ export class StatusStore {
   toJson() {
     return {
       app: {
-        name: 'ha-vue',
+        name: 'hass-vue',
         version: APP_VERSION
       },
       sourceRoot: this.paths.sourceRoot,
@@ -94,7 +94,7 @@ export class StatusStore {
         lovelaceYaml: `resources:\n  - url: ${page.resourceUrl}\n    type: module\n\nviews:\n  - title: ${page.title}\n    cards:\n      - type: ${page.cardType}`,
         lovelacePanelYaml: `resources:\n  - url: ${page.resourceUrl}\n    type: module\n\nviews:\n  - title: ${page.title}\n    panel: true\n    cards:\n      - type: ${page.cardType}`,
         panelCustomYaml: `panel_custom:\n  - name: ${page.panelName}  # Must exactly match the generated element name.\n    sidebar_title: ${page.title}\n    sidebar_icon: mdi:tablet-dashboard\n    module_url: ${page.resourceUrl}\n    embed_iframe: false\n    require_admin: false`,
-        browserModuleExample: `<div id="ha-vue-root"></div>\n<script type="module">\n  import { mountHaVuePage } from '${page.resourceUrl}';\n\n  const mounted = mountHaVuePage(document.getElementById('ha-vue-root'));\n\n  // Optional outside Home Assistant:\n  // mounted.updateHass(fakeOrRealHassObject);\n  // mounted.unmount();\n</script>`
+        browserModuleExample: `<div id="hass-vue-root"></div>\n<script type="module">\n  import { mountHassVuePage } from '${page.resourceUrl}';\n\n  const mounted = mountHassVuePage(document.getElementById('hass-vue-root'));\n\n  // Optional outside Home Assistant:\n  // mounted.updateHass(fakeOrRealHassObject);\n  // mounted.unmount();\n</script>`
       }))
     };
   }
@@ -137,7 +137,7 @@ export function renderHtml(status) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="cache-control" content="no-store">
   <meta http-equiv="pragma" content="no-cache">
-  <title>ha-vue Status</title>
+  <title>hass-vue Status</title>
   <style>
     body { margin: 0; padding: 24px; font-family: system-ui, sans-serif; color: #111; background: #fff; }
     main { max-width: 1100px; margin: 0 auto; }
@@ -162,7 +162,7 @@ export function renderHtml(status) {
 <body>
   <main>
     <header>
-      <h1>ha-vue Status</h1>
+      <h1>hass-vue Status</h1>
       <p>Version ${escapeHtml(status.app.version)}. Generated ${escapeHtml(status.generatedAt)}.</p>
       <p>Source <code>${escapeHtml(status.sourceRoot)}</code></p>
       <p>Output <code>${escapeHtml(status.outputRoot)}</code></p>
@@ -196,13 +196,13 @@ export function renderHtml(status) {
           </tr>
           <tr>
             <td>Plain browser module</td>
-            <td>Any HTML page that can load the built JavaScript module. Import <code>mountHaVuePage</code> from the module and call it with a target element.</td>
+            <td>Any HTML page that can load the built JavaScript module. Import <code>mountHassVuePage</code> from the module and call it with a target element.</td>
             <td>A normal Vue app mounted into your chosen div. The same module still registers the Home Assistant custom element.</td>
             <td>Outside Home Assistant there is no real <code>hass</code> object unless you provide one. Helpers such as <code>getState</code> return empty values until <code>mounted.updateHass(...)</code> is called.</td>
           </tr>
           <tr>
             <td>Screenshot mode</td>
-            <td>Add <code>?ha-vue-snapshot=1&amp;ha-vue-ready=snapshot</code> to the HA page URL, then wait for <code>data-ha-vue-ready="true"</code> or the <code>ha-vue-ready</code> event.</td>
+            <td>Add <code>?hass-vue-snapshot=1&amp;hass-vue-ready=snapshot</code> to the HA page URL, then wait for <code>data-hass-vue-ready="true"</code> or the <code>hass-vue-ready</code> event.</td>
             <td>The first assigned Home Assistant <code>hass</code> object is captured as a snapshot and rendered. Later live updates do not move the page.</td>
             <td>Best for deterministic screenshots. Interactive dashboards should omit these URL parameters and use the default live mode.</td>
           </tr>
@@ -210,11 +210,11 @@ export function renderHtml(status) {
       </table>
       <p><code>panel_custom</code> belongs in Home Assistant <code>configuration.yaml</code>. Use <code>embed_iframe: false</code> so Home Assistant loads the module as a frontend custom element and assigns the <code>hass</code> object.</p>
       <p><code>page.js</code> is a stable loader. It reads <code>manifest.json</code> without cache and imports the latest versioned module file. Static mode does not live-reload the browser; after a successful rebuild, refresh the HA page that uses the module.</p>
-      <p>For automation, wait for <code>data-ha-vue-ready="true"</code> on the custom element or listen for <code>ha-vue-ready</code>. The default readiness means mounted and painted. Snapshot readiness is opt-in with <code>ha-vue-snapshot=1</code>.</p>
+      <p>For automation, wait for <code>data-hass-vue-ready="true"</code> on the custom element or listen for <code>hass-vue-ready</code>. The default readiness means mounted and painted. Snapshot readiness is opt-in with <code>hass-vue-snapshot=1</code>.</p>
     </section>
     <section>
       <h2>Screenshot Readiness</h2>
-      <p>DOM loaded is too early for screenshots. ha-vue exposes an explicit readiness signal from the mounted page.</p>
+      <p>DOM loaded is too early for screenshots. hass-vue exposes an explicit readiness signal from the mounted page.</p>
       <table>
         <thead>
           <tr>
@@ -231,26 +231,26 @@ export function renderHtml(status) {
           </tr>
           <tr>
             <td>Deterministic screenshot</td>
-            <td><code>?ha-vue-snapshot=1&amp;ha-vue-ready=snapshot</code></td>
+            <td><code>?hass-vue-snapshot=1&amp;hass-vue-ready=snapshot</code></td>
             <td>The first assigned <code>hass</code> object is captured as a snapshot. Later live updates do not move the page.</td>
           </tr>
           <tr>
             <td>Manual readiness</td>
-            <td><code>?ha-vue-ready=manual</code> plus <code>markReady()</code> in page code</td>
+            <td><code>?hass-vue-ready=manual</code> plus <code>markReady()</code> in page code</td>
             <td>Your Vue page decides when it is ready, for example after fonts, images, charts, or service data have settled.</td>
           </tr>
         </tbody>
       </table>
       <h3>Wait Targets</h3>
       <pre>${escapeHtml(`// Custom element in Home Assistant:
-await page.waitForSelector('ha-vue-page-example[data-ha-vue-ready="true"]');
+await page.waitForSelector('hass-vue-page-example[data-hass-vue-ready="true"]');
 
 // Any mounted target:
-await page.waitForSelector('[data-ha-vue-ready="true"]');
+await page.waitForSelector('[data-hass-vue-ready="true"]');
 
 // Event form:
 await page.evaluate(() => new Promise((resolve) => {
-  window.addEventListener('ha-vue-ready', resolve, { once: true });
+  window.addEventListener('hass-vue-ready', resolve, { once: true });
 }));`)}</pre>
       <h3>Page API</h3>
       <pre>${escapeHtml(`import {
@@ -258,7 +258,7 @@ await page.evaluate(() => new Promise((resolve) => {
   hassSnapshotRef,
   markBusy,
   markReady
-} from '@ha-vue/hass';
+} from '@hass-vue/hass';
 
 // Optional manual readiness:
 markBusy({ reason: 'loading-chart' });

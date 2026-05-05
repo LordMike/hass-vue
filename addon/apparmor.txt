@@ -1,6 +1,6 @@
 #include <tunables/global>
 
-profile ha-vue flags=(complain,attach_disconnected,mediate_deleted) {
+profile hass-vue flags=(complain,attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
 
   capability,
@@ -24,7 +24,7 @@ profile ha-vue flags=(complain,attach_disconnected,mediate_deleted) {
   /lib/** rm,
   /app/** rix,
   /data/** rw,
-  /ha-config/www/ha-vue/** rwk,
-  /ha-config/ha-vue/** rwk,
+  /ha-config/www/hass-vue/** rwk,
+  /ha-config/hass-vue/** rwk,
   /ha-config/www/ rw,
 }
