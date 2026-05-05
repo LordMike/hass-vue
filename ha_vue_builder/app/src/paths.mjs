@@ -7,16 +7,14 @@ import {
   OUTPUT_SUBDIR
 } from './constants.mjs';
 
-export async function validatePaths(logger) {
-  const sourceRoot = process.env.HA_VUE_SOURCE_ROOT || DEFAULT_SOURCE_ROOT;
+export async function validatePaths(logger, options = {}) {
+  const sourceRoot = process.env.HA_VUE_SOURCE_ROOT || options.internal_source_root || DEFAULT_SOURCE_ROOT;
   const haConfigRoot = process.env.HA_VUE_HA_CONFIG_ROOT || DEFAULT_HA_CONFIG_ROOT;
-  const outputRoot = process.env.HA_VUE_OUTPUT_ROOT || path.join(haConfigRoot, OUTPUT_SUBDIR);
-  const shareRoot = process.env.HA_VUE_SHARE_ROOT || path.dirname(sourceRoot);
+  const outputRoot = process.env.HA_VUE_OUTPUT_ROOT || options.internal_output_root || path.join(haConfigRoot, OUTPUT_SUBDIR);
   const pagesRoot = path.join(sourceRoot, 'pages');
   const sharedRoot = path.join(sourceRoot, 'shared');
   const wwwRoot = path.join(haConfigRoot, 'www');
 
-  await assertDirectory(shareRoot, 'share root');
   await assertDirectory(haConfigRoot, 'Home Assistant config root');
   await mkdir(wwwRoot, { recursive: true });
   await mkdir(sourceRoot, { recursive: true });
@@ -44,6 +42,7 @@ export async function validatePaths(logger) {
   if (realOutput === resolvedHaConfig || realOutput === resolvedWww) {
     throw new Error(`Output root is too broad after resolution: ${realOutput}`);
   }
+  const localOutputRoot = `/local/${path.relative(realWww, realOutput).split(path.sep).join('/')}`;
 
   await writeFile(path.join(realOutput, OUTPUT_ROOT_MARKER), 'managed by HA Vue Builder\n');
   await mkdir(path.join(realOutput, 'pages'), { recursive: true });
@@ -52,13 +51,13 @@ export async function validatePaths(logger) {
   logger.info('paths ok', { source: pagesRoot, output: realOutput });
   return {
     appRoot: path.resolve(new URL('..', import.meta.url).pathname),
-    shareRoot: await realpath(shareRoot),
     sourceRoot: await realpath(sourceRoot),
     pagesRoot: await realpath(pagesRoot),
     sharedRoot: await realpath(sharedRoot),
     haConfigRoot: realHaConfig,
     wwwRoot: realWww,
     outputRoot: realOutput,
+    localOutputRoot,
     outputPagesRoot: path.join(realOutput, 'pages'),
     tmpRoot: path.join(realOutput, '.tmp')
   };

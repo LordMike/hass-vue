@@ -12,10 +12,12 @@ logger.info('startup', { app: APP_ID, version: APP_VERSION });
 logger.info('config loaded', {
   dev_server: options.dev_server,
   log_level: options.log_level,
-  create_example: options.create_example
+  create_example: options.create_example,
+  source_root: options.source_root,
+  output_root: options.output_root
 });
 
-const paths = await validatePaths(logger);
+const paths = await validatePaths(logger, options);
 const statusStore = new StatusStore(paths, options);
 const devServer = startDevServer(options, statusStore, logger);
 const pageWatcher = new PageWatcher(paths, options, logger, statusStore);

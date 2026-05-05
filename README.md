@@ -5,9 +5,11 @@
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-add--on-41bdf5)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-HA Vue Builder is a Home Assistant add-on repository for building Vue single-file components into standalone browser modules. It is for Home Assistant users who want richer custom dashboards, sidebar panels, status displays, or frontend tools without maintaining a separate frontend deployment.
+HA Vue Builder is a Home Assistant add-on repository for building Vue single-file components into standalone browser modules. It is for Home Assistant users who want to create completely custom views while still receiving the frontend `hass` object, including all entity states and live updates.
 
-Each page lives under `/share/ha-vue/pages`, builds independently with Vue and Vite, and is published to `/config/www/ha-vue` for Home Assistant to serve as `/local/ha-vue`. The same generated module can be used as a Lovelace custom card, a `panel_custom` page, or a plain browser-mounted Vue app.
+That makes it useful for views where Lovelace is too constrained, such as a black-and-white e-paper dashboard where every pixel, layout rule, and rendered state needs to be controlled directly. Each page lives under `/config/ha-vue/pages`, builds independently with Vue and Vite, and is published to `/config/www/ha-vue` for Home Assistant to serve as `/local/ha-vue`.
+
+The generated module can be used as a Lovelace custom card, a `panel_custom` page, or a plain browser-mounted Vue app.
 
 Failed builds keep the last successful output in place, and the add-on writes a status page with generated YAML examples for every discovered page.
 
@@ -15,7 +17,8 @@ Failed builds keep the last successful output in place, and the add-on writes a 
 
 - Add this repository to Home Assistant as an add-on repository: `https://github.com/LordMike/hass-vue`
 - Install and start **HA Vue Builder**.
-- Open `/local/ha-vue/status.html` after the first build, then edit `/share/ha-vue/pages/example/index.vue`.
+- Open `/local/ha-vue/status.html` after the first build, then edit `/config/ha-vue/pages/example/index.vue`.
+- With the **Studio Code Server** add-on, open its Web UI and edit `/config/ha-vue` directly from the Explorer.
 
 ## Features
 
@@ -38,7 +41,7 @@ Failed builds keep the last successful output in place, and the add-on writes a 
 Create a page:
 
 ```text
-/share/ha-vue/pages/dashboard/index.vue
+/config/ha-vue/pages/dashboard/index.vue
 ```
 
 The add-on builds it to:
@@ -79,8 +82,8 @@ panel_custom:
 When `create_example` is enabled and no pages exist, the add-on creates:
 
 ```text
-/share/ha-vue/pages/example/index.vue
-/share/ha-vue/pages/example/page.json
+/config/ha-vue/pages/example/index.vue
+/config/ha-vue/pages/example/page.json
 ```
 
 The bundled example page is a Home Assistant-aware Vue dashboard. It shows connection status, live time, entity count, unavailable entity count, `sun.sun`, largest domains, recently updated entities, and a small update log. It uses the runtime helpers from `@ha-vue/hass`, including `hassRef`, `hassSnapshotRef`, and snapshot state reads.
@@ -93,7 +96,11 @@ Edit that page, wait for a successful rebuild in the add-on log or status page, 
 | --- | --- | --- | --- |
 | `dev_server` | no | `false` | Exposes the status/development endpoint through Home Assistant Ingress on port `8099`. Static `/local` output remains authoritative. |
 | `log_level` | no | `info` | Use `debug` while diagnosing watcher or build behavior. |
-| `create_example` | no | `true` | Creates the bundled example page when `/share/ha-vue/pages` has no page folders. |
+| `create_example` | no | `true` | Creates the bundled example page when `/config/ha-vue/pages` has no page folders. |
+| `source_root` | no | `/config/ha-vue` | Home Assistant config path that contains `pages/` and `shared/`. Relative values are treated as folders under `/config`. |
+| `output_root` | no | `/config/www/ha-vue` | Home Assistant config path where built browser modules are written. Keep this under `/config/www` so Home Assistant can serve it as `/local`. For example, `/config/www/custom-vue` is served as `/local/custom-vue`. |
+
+Both path options must stay under `/config`. The source root cannot be inside `/config/www`, and source/output roots cannot overlap.
 
 ## Deployment
 
@@ -120,7 +127,7 @@ The add-on image installs Node dependencies at image build time with:
 npm ci --ignore-scripts --omit=dev
 ```
 
-At runtime it watches `/share/ha-vue/pages` and `/share/ha-vue/shared`, builds pages into `/ha-config/www/ha-vue`, and serves them through Home Assistant as `/local/ha-vue`.
+At runtime it watches the configured `source_root` inside the add-on container. With defaults, users see those source folders as `/config/ha-vue/pages` and `/config/ha-vue/shared` in Home Assistant file editors such as Studio Code Server, while the add-on sees them as `/ha-config/ha-vue/pages` and `/ha-config/ha-vue/shared`. Built output is written to the configured `output_root`; with defaults this is `/ha-config/www/ha-vue` inside the add-on and `/config/www/ha-vue` for users, served by Home Assistant as `/local/ha-vue`.
 
 Version tags must use plain numeric semantic versions such as `0.2.5`. The release workflow intentionally rejects the usual `v0.2.5` prefix because Home Assistant add-on versions require the unprefixed form.
 
@@ -145,7 +152,7 @@ The validation creates temporary Home Assistant-like folders, verifies example c
 
 ## Security
 
-Anyone who can edit `/share/ha-vue` can create JavaScript that runs inside the Home Assistant frontend for the logged-in browser session. Treat page authors as trusted Home Assistant frontend code authors.
+Anyone who can edit `/config/ha-vue` can create JavaScript that runs inside the Home Assistant frontend for the logged-in browser session. Treat page authors as trusted Home Assistant frontend code authors.
 
 Do not put secrets, tokens, credentialed URLs, or sensitive rendered data in page source or generated output. Home Assistant serves `/config/www` content publicly under `/local` to anyone who can reach the URL.
 

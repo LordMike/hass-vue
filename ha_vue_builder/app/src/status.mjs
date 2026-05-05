@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { writeFile } from 'node:fs/promises';
-import { APP_VERSION, LOCAL_OUTPUT_ROOT } from './constants.mjs';
+import { APP_VERSION } from './constants.mjs';
 
 export class StatusStore {
   constructor(paths, options) {
@@ -54,8 +54,8 @@ export class StatusStore {
     await writeFile(jsonPath, JSON.stringify(json, null, 2));
     await writeFile(htmlPath, renderHtml(json));
     logger.info('status written', {
-      html: `${LOCAL_OUTPUT_ROOT}/status.html`,
-      json: `${LOCAL_OUTPUT_ROOT}/status.json`
+      html: `${this.paths.localOutputRoot}/status.html`,
+      json: `${this.paths.localOutputRoot}/status.json`
     });
   }
 
@@ -67,6 +67,7 @@ export class StatusStore {
       },
       sourceRoot: this.paths.sourceRoot,
       outputRoot: this.paths.outputRoot,
+      localOutputRoot: this.paths.localOutputRoot,
       generatedAt: this.generatedAt,
       devServer: {
         enabled: Boolean(this.options.dev_server),
@@ -81,7 +82,7 @@ export class StatusStore {
         sourcePath: page.sourcePath,
         outputPath: page.outputPath,
         resourceUrl: page.resourceUrl,
-        manifestUrl: `${LOCAL_OUTPUT_ROOT}/pages/${page.slug}/manifest.json`,
+        manifestUrl: `${this.paths.localOutputRoot}/pages/${page.slug}/manifest.json`,
         cardType: page.cardType,
         panelCustomName: page.panelName,
         buildStatus: page.buildStatus,
@@ -122,7 +123,8 @@ export function renderHtml(status) {
       <pre>${escapeHtml(page.lovelaceYaml)}</pre>
       <h3>Lovelace panel-mode view</h3>
       <pre>${escapeHtml(page.lovelacePanelYaml)}</pre>
-      <h3>panel_custom</h3>
+      <h3>Home Assistant configuration.yaml panel_custom</h3>
+      <p>Add this block to Home Assistant <code>configuration.yaml</code>, then restart Home Assistant Core.</p>
       <pre>${escapeHtml(page.panelCustomYaml)}</pre>
       <h3>Plain browser module</h3>
       <pre>${escapeHtml(page.browserModuleExample)}</pre>
@@ -164,7 +166,7 @@ export function renderHtml(status) {
       <p>Version ${escapeHtml(status.app.version)}. Generated ${escapeHtml(status.generatedAt)}.</p>
       <p>Source <code>${escapeHtml(status.sourceRoot)}</code></p>
       <p>Output <code>${escapeHtml(status.outputRoot)}</code></p>
-      <p>Status JSON <a href="${LOCAL_OUTPUT_ROOT}/status.json"><code>${LOCAL_OUTPUT_ROOT}/status.json</code></a></p>
+      <p>Status JSON <a href="${escapeAttr(status.localOutputRoot)}/status.json"><code>${escapeHtml(status.localOutputRoot)}/status.json</code></a></p>
       <p>Dev server: ${escapeHtml(status.devServer.ingress)}</p>
     </header>
     <section>
@@ -188,7 +190,7 @@ export function renderHtml(status) {
           </tr>
           <tr>
             <td><code>panel_custom</code></td>
-            <td>Home Assistant <code>configuration.yaml</code>. Add the listed <code>panel_custom:</code> block and restart Home Assistant Core.</td>
+            <td>Home Assistant <code>configuration.yaml</code>, not Lovelace dashboard YAML. Add the listed <code>panel_custom:</code> block and restart Home Assistant Core.</td>
             <td>A sidebar panel whose content is your Vue page custom element loaded from <code>module_url</code>.</td>
             <td>Best when the page should feel like its own HA section. Requires a Core restart when adding/removing/changing the panel config. Vue source edits still only need rebuild plus browser refresh.</td>
           </tr>
@@ -206,7 +208,7 @@ export function renderHtml(status) {
           </tr>
         </tbody>
       </table>
-      <p>Use <code>embed_iframe: false</code> for <code>panel_custom</code>. That lets Home Assistant load the module as a frontend custom element and assign the <code>hass</code> object.</p>
+      <p><code>panel_custom</code> belongs in Home Assistant <code>configuration.yaml</code>. Use <code>embed_iframe: false</code> so Home Assistant loads the module as a frontend custom element and assigns the <code>hass</code> object.</p>
       <p><code>page.js</code> is a stable loader. It reads <code>manifest.json</code> without cache and imports the latest versioned module file. Static mode does not live-reload the browser; after a successful rebuild, refresh the HA page that uses the module.</p>
       <p>For automation, wait for <code>data-ha-vue-ready="true"</code> on the custom element or listen for <code>ha-vue-ready</code>. The default readiness means mounted and painted. Snapshot readiness is opt-in with <code>ha-vue-snapshot=1</code>.</p>
     </section>

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { readdir, readFile, stat } from 'node:fs/promises';
-import { LOCAL_OUTPUT_ROOT, VALID_SLUG_RE } from './constants.mjs';
+import { VALID_SLUG_RE } from './constants.mjs';
 import { createExamplePage } from './example-page.mjs';
 
 export async function discoverPages(paths, options, logger) {
@@ -36,7 +36,7 @@ export async function discoverPages(paths, options, logger) {
       sourcePath,
       outputDir: path.join(paths.outputPagesRoot, slug),
       outputPath: path.join(paths.outputPagesRoot, slug, 'page.js'),
-      resourceUrl: `${LOCAL_OUTPUT_ROOT}/pages/${slug}/page.js`,
+      resourceUrl: `${paths.localOutputRoot}/pages/${slug}/page.js`,
       cardType: `custom:${elementName}`,
       panelName: elementName,
       elementName

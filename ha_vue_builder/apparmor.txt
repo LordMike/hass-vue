@@ -24,7 +24,7 @@ profile ha_vue_builder flags=(complain,attach_disconnected,mediate_deleted) {
   /lib/** rm,
   /app/** rix,
   /data/** rw,
-  /share/ha-vue/** rwk,
   /ha-config/www/ha-vue/** rwk,
+  /ha-config/ha-vue/** rwk,
   /ha-config/www/ rw,
 }

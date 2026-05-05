@@ -10,15 +10,27 @@ Failed builds do not replace the last successful output, so a syntax error in on
 
 Add this repository as a Home Assistant App repository, install **HA Vue Builder**, and start it. The app maps:
 
-- `/share` read/write for source pages
-- Home Assistant config read/write as `/ha-config` so it can write `/ha-config/www/ha-vue`
+- Home Assistant config read/write as `/ha-config`
 
 No npm commands are run at runtime. Dependencies are installed in the image with `npm ci --ignore-scripts --omit=dev`.
+
+Source pages are stored in the Home Assistant config folder at `/config/ha-vue` from the user's point of view. Inside the HA Vue Builder app container, that same folder is mounted as `/ha-config/ha-vue`.
+
+If you use the **Studio Code Server** app, open its Web UI and create or edit files under `/config/ha-vue`. Studio Code Server also runs as a Home Assistant app, but it exposes the Home Assistant config folder as `/config`, which is the path users normally see next to `configuration.yaml` and `www`.
+
+The source and output roots are configurable:
+
+| Option | Default | Notes |
+| --- | --- | --- |
+| `source_root` | `/config/ha-vue` | Contains `pages/` and `shared/`. Relative values are treated as folders under `/config`. |
+| `output_root` | `/config/www/ha-vue` | Receives `status.html`, `status.json`, and built page modules. Keep this under `/config/www` so Home Assistant can serve it as `/local`. For example, `/config/www/custom-vue` is served as `/local/custom-vue`. |
+
+Both paths must be under `/config`. `source_root` cannot be under `/config/www`, and the source and output roots cannot overlap.
 
 ## Folder Structure
 
 ```text
-/share/ha-vue/
+/config/ha-vue/
   pages/
     example/
       index.vue
@@ -34,6 +46,8 @@ No npm commands are run at runtime. Dependencies are installed in the image with
       manifest.json
 ```
 
+Inside the HA Vue Builder app container, the source tree above is `/ha-config/ha-vue` and the output tree is `/ha-config/www/ha-vue`.
+
 Valid page slugs match `^[a-z0-9][a-z0-9-]*$`.
 
 ## Create A Page
@@ -41,7 +55,7 @@ Valid page slugs match `^[a-z0-9][a-z0-9-]*$`.
 Create:
 
 ```text
-/share/ha-vue/pages/dashboard-entrance/index.vue
+/config/ha-vue/pages/dashboard-entrance/index.vue
 ```
 
 The generated element is:
@@ -186,13 +200,13 @@ When a source page is deleted, the matching output directory is removed only if 
 
 ## Security Model
 
-Anyone who can edit `/share/ha-vue` can create frontend JavaScript that runs inside Home Assistant in the current logged-in user’s browser session. Treat page authors as trusted Home Assistant frontend code authors.
+Anyone who can edit `/config/ha-vue` can create frontend JavaScript that runs inside Home Assistant in the current logged-in user’s browser session. Treat page authors as trusted Home Assistant frontend code authors.
 
 Do not put secrets, tokens, URLs containing credentials, or sensitive rendered data in page source or generated HTML. Content in `/config/www` is public to anyone who can reach the URL if they know it.
 
 The app never embeds Home Assistant tokens, long-lived access tokens, credentials, or instance URLs. It uses only the `hass` object assigned by the Home Assistant frontend to the loaded custom element.
 
-The watched `/share/ha-vue` tree is not treated as a Node project. A user-created `package.json` there is ignored; runtime does not run `npm install`, lifecycle scripts, yarn, or pnpm.
+The watched `/config/ha-vue` tree is not treated as a Node project. A user-created `package.json` there is ignored; runtime does not run `npm install`, lifecycle scripts, yarn, or pnpm.
 
 ## Troubleshooting
 

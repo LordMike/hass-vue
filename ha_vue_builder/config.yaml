@@ -15,8 +15,6 @@ ingress: true
 ingress_port: 8099
 panel_icon: mdi:tablet-dashboard
 map:
-  - type: share
-    read_only: false
   - type: homeassistant_config
     read_only: false
     path: /ha-config
@@ -24,7 +22,11 @@ options:
   dev_server: false
   log_level: info
   create_example: true
+  source_root: /config/ha-vue
+  output_root: /config/www/ha-vue
 schema:
   dev_server: bool
   log_level: list(info|debug)
   create_example: bool
+  source_root: str
+  output_root: str

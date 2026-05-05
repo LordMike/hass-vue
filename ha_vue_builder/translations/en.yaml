@@ -7,4 +7,10 @@ configuration:
     description: Use debug only while diagnosing build or watcher behavior.
   create_example:
     name: Create example page
-    description: Create /share/ha-vue/pages/example/index.vue when no pages exist.
+    description: Create /config/ha-vue/pages/example/index.vue when no pages exist.
+  source_root:
+    name: Source root
+    description: Home Assistant config path that contains pages/ and shared/. Use /config/ha-vue unless you need a custom location.
+  output_root:
+    name: Output root
+    description: Home Assistant config path where built browser modules are written. Keep this under /config/www so Home Assistant can serve it as /local.

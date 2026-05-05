@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 import { mkdtemp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
+import { loadConfig } from '../src/config.mjs';
 import { createLogger } from '../src/logger.mjs';
 import { validatePaths } from '../src/paths.mjs';
 import { discoverPages } from '../src/discover-pages.mjs';
@@ -9,19 +10,53 @@ import { buildPage, removePageOutput } from '../src/build-page.mjs';
 import { StatusStore } from '../src/status.mjs';
 
 const root = await mkdtemp(path.join(tmpdir(), 'ha-vue-builder-'));
-const shareRoot = path.join(root, 'share');
 const haConfigRoot = path.join(root, 'ha-config');
-await mkdir(shareRoot, { recursive: true });
 await mkdir(path.join(haConfigRoot, 'www'), { recursive: true });
 
-process.env.HA_VUE_SHARE_ROOT = shareRoot;
-process.env.HA_VUE_SOURCE_ROOT = path.join(shareRoot, 'ha-vue');
 process.env.HA_VUE_HA_CONFIG_ROOT = haConfigRoot;
 
 const logger = createLogger('info');
 try {
-  const paths = await validatePaths(logger);
-  const options = { create_example: false, dev_server: false, log_level: 'info' };
+  const loadedDefaults = await loadConfig(path.join(root, 'missing-options.json'));
+  assert.equal(loadedDefaults.source_root, '/config/ha-vue');
+  assert.equal(loadedDefaults.output_root, '/config/www/ha-vue');
+  assert.equal(loadedDefaults.internal_source_root, path.join(haConfigRoot, 'ha-vue'));
+  assert.equal(loadedDefaults.internal_output_root, path.join(haConfigRoot, 'www', 'ha-vue'));
+
+  const customOptionsPath = path.join(root, 'options.json');
+  await writeFile(customOptionsPath, JSON.stringify({
+    source_root: '/config/custom-vue',
+    output_root: '/config/www/custom-vue',
+    create_example: false
+  }));
+  const loadedCustom = await loadConfig(customOptionsPath);
+  assert.equal(loadedCustom.source_root, '/config/custom-vue');
+  assert.equal(loadedCustom.output_root, '/config/www/custom-vue');
+  assert.equal(loadedCustom.internal_source_root, path.join(haConfigRoot, 'custom-vue'));
+  assert.equal(loadedCustom.internal_output_root, path.join(haConfigRoot, 'www', 'custom-vue'));
+  const customPaths = await validatePaths(logger, loadedCustom);
+  assert.equal(customPaths.sourceRoot, path.join(haConfigRoot, 'custom-vue'));
+  assert.equal(customPaths.outputRoot, path.join(haConfigRoot, 'www', 'custom-vue'));
+  assert.equal(customPaths.localOutputRoot, '/local/custom-vue');
+
+  const invalidOutsideConfigPath = path.join(root, 'invalid-outside-config.json');
+  await writeFile(invalidOutsideConfigPath, JSON.stringify({ source_root: '/share/ha-vue' }));
+  await assert.rejects(loadConfig(invalidOutsideConfigPath), /source_root must be under \/config/);
+
+  const invalidPublicSourcePath = path.join(root, 'invalid-public-source.json');
+  await writeFile(invalidPublicSourcePath, JSON.stringify({ source_root: '/config/www/source' }));
+  await assert.rejects(loadConfig(invalidPublicSourcePath), /source_root must not be under \/config\/www/);
+
+  const invalidOverlapPath = path.join(root, 'invalid-overlap.json');
+  await writeFile(invalidOverlapPath, JSON.stringify({
+    source_root: '/config/ha-vue',
+    output_root: '/config/ha-vue/out'
+  }));
+  await assert.rejects(loadConfig(invalidOverlapPath), /must not overlap/);
+
+  const options = { ...loadedDefaults, create_example: false, dev_server: false, log_level: 'info' };
+  const paths = await validatePaths(logger, options);
+  assert.equal(paths.localOutputRoot, '/local/ha-vue');
   const exampleDiscovery = await discoverPages(paths, { ...options, create_example: true }, logger);
   assert.equal(exampleDiscovery.pages.length, 1);
   assert.equal(exampleDiscovery.pages[0].slug, 'example');

@@ -86,7 +86,7 @@ watch(
         <h1>HA Vue Builder</h1>
         <p class="intro">
           This is a sample page. Edit
-          <code>/share/ha-vue/pages/example/index.vue</code>,
+          <code>/config/ha-vue/pages/example/index.vue</code>,
           wait for a successful rebuild in the app log, then refresh this Home Assistant page.
         </p>
       </div>
