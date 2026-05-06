@@ -1,0 +1,13 @@
+{
+  "$schema": "https://github.com/LordMike/MBW.Tools.GhStandardContent/spec/StandardContent.json",
+  "meta": {
+    "repo": "LordMike/hass-vue",
+    "profiles": [
+      "hassAddonsRepositoryDispatch"
+    ],
+    "files": [
+      ".github/workflows/notify-hass-addons.yml"
+    ],
+    "last_updated": "2026-05-06T11:04:40.5084759+00:00"
+  }
+}
