@@ -5,7 +5,7 @@
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-add--on-41bdf5)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-hass-vue is a Home Assistant add-on source repository for building Vue single-file components into standalone browser modules. It is for Home Assistant users who want to create completely custom views while still receiving the frontend `hass` object, including all entity states and live updates.
+hass-vue builds Vue single-file components into standalone browser modules for Home Assistant. It is for Home Assistant users who want to create completely custom views while still receiving the frontend `hass` object, including all entity states and live updates.
 
 That makes it useful for views where Lovelace is too constrained, such as a black-and-white e-paper dashboard where every pixel, layout rule, and rendered state needs to be controlled directly. Each page lives under `/config/hass-vue/pages`, builds independently with Vue and Vite, and is published to `/config/www/hass-vue` for Home Assistant to serve as `/local/hass-vue`.
 
@@ -29,12 +29,6 @@ Failed builds keep the last successful output in place, and the add-on writes a 
 - Last-good output preserved when a build fails
 - Status HTML/JSON with generated YAML snippets
 - Screenshot readiness events and snapshot mode for deterministic captures
-
-## Documentation
-
-- [Add-on README](addon/README.md) — compact install and first-use notes.
-- [Full docs](addon/DOCS.md) — page layout, Lovelace resources, `panel_custom`, runtime helpers, status output, security notes, and troubleshooting.
-- [Changelog](addon/CHANGELOG.md) — release notes.
 
 ## Usage
 
@@ -102,22 +96,20 @@ Edit that page, wait for a successful rebuild in the add-on log or status page, 
 
 Both path options must stay under `/config`. The source root cannot be inside `/config/www`, and source/output roots cannot overlap.
 
-## Deployment
+## Add-on Image
 
-This repository contains the source for the `hass-vue` add-on. User-facing installation is published through the central Home Assistant add-on repository at `https://github.com/LordMike/hass-addons`.
+This repository contains the `hass-vue` app source and Docker image build. User-facing Home Assistant add-on installation is published through the central add-on repository at `https://github.com/LordMike/hass-addons`.
 
 ```text
-addon/
-  config.yaml
-  Dockerfile
-  run.sh
 app/
   package.json
   src/
   test/
+Dockerfile
+run.sh
 ```
 
-Home Assistant installs from `hass-addons` use the published multi-arch Docker image declared in `addon/config.yaml`:
+Home Assistant installs from `hass-addons` use the published multi-arch Docker image declared by that repository's add-on metadata:
 
 ```text
 ghcr.io/lordmike/hass-vue
@@ -131,7 +123,7 @@ npm ci --ignore-scripts --omit=dev
 
 At runtime it watches the configured `source_root` inside the add-on container. With defaults, users see those source folders as `/config/hass-vue/pages` and `/config/hass-vue/shared` in Home Assistant file editors such as Studio Code Server, while the add-on sees them as `/ha-config/hass-vue/pages` and `/ha-config/hass-vue/shared`. Built output is written to the configured `output_root`; with defaults this is `/ha-config/www/hass-vue` inside the add-on and `/config/www/hass-vue` for users, served by Home Assistant as `/local/hass-vue`.
 
-Version tags must use plain numeric semantic versions such as `0.1.0`. The release workflow intentionally rejects the usual `v0.1.0` prefix because Home Assistant add-on versions require the unprefixed form.
+Version tags must use plain numeric semantic versions such as `1.2.3`. The release workflow intentionally rejects the usual `v1.2.3` prefix because Home Assistant add-on versions require the unprefixed form.
 
 Tagged releases publish Docker images to GitHub Container Registry:
 

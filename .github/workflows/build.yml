@@ -49,4 +49,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build -t hass-vue:ci -f addon/Dockerfile .
+        run: docker build -t hass-vue:ci .

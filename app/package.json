@@ -1,6 +1,6 @@
 {
   "name": "hass-vue",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Home Assistant app for Vue pages, custom panels, and browser modules.",
   "type": "module",
   "private": true,

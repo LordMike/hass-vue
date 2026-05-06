@@ -1,8 +1,12 @@
 ARG BUILD_FROM=ghcr.io/home-assistant/base:3.21
+ARG HASS_VERSION=local
 FROM ${BUILD_FROM}
 
+ARG HASS_VERSION
+ENV HASS_VUE_VERSION=${HASS_VERSION}
+
 LABEL \
-  io.hass.version="0.1.0" \
+  io.hass.version="${HASS_VERSION}" \
   io.hass.type="app" \
   io.hass.arch="aarch64|amd64"
 
@@ -16,7 +20,7 @@ RUN npm ci --ignore-scripts --omit=dev
 
 COPY app/src ./src
 COPY app/test ./test
-COPY addon/run.sh /run.sh
+COPY run.sh /run.sh
 RUN chmod a+x /run.sh
 
 EXPOSE 8099
