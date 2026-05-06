@@ -68,6 +68,7 @@ export class StatusStore {
       sourceRoot: this.paths.sourceRoot,
       outputRoot: this.paths.outputRoot,
       localOutputRoot: this.paths.localOutputRoot,
+      allPagesModuleUrl: `${this.paths.localOutputRoot}/pages/all.js`,
       generatedAt: this.generatedAt,
       devServer: {
         enabled: Boolean(this.options.dev_server),
@@ -119,7 +120,7 @@ export function renderHtml(status) {
         <dt>Error</dt><dd>${escapeHtml(page.errorSummary || '')}</dd>
       </dl>
       <h3>Preferred: Lovelace card</h3>
-      <p>Add <code>${escapeHtml(page.resourceUrl)}</code> as a JavaScript module resource in Home Assistant's dashboard resource UI, then add this card to a dashboard view. The example uses Lovelace panel mode so the card fills the view.</p>
+      <p>Add <code>${escapeHtml(status.allPagesModuleUrl)}</code> once as a JavaScript module resource in Home Assistant's dashboard resource UI, then add this card to a dashboard view. The example uses Lovelace panel mode so the card fills the view.</p>
       <pre>${escapeHtml(page.lovelaceYaml)}</pre>
       <h3>Home Assistant configuration.yaml panel_custom</h3>
       <p>Add this block to Home Assistant <code>configuration.yaml</code>, then restart Home Assistant Core.</p>
@@ -164,6 +165,7 @@ export function renderHtml(status) {
       <p>Version ${escapeHtml(status.app.version)}. Generated ${escapeHtml(status.generatedAt)}.</p>
       <p>Source <code>${escapeHtml(status.sourceRoot)}</code></p>
       <p>Output <code>${escapeHtml(status.outputRoot)}</code></p>
+      <p>All pages module <a href="${escapeAttr(status.allPagesModuleUrl)}"><code>${escapeHtml(status.allPagesModuleUrl)}</code></a></p>
       <p>Status JSON <a href="${escapeAttr(status.localOutputRoot)}/status.json"><code>${escapeHtml(status.localOutputRoot)}/status.json</code></a></p>
       <p>Dev server: ${escapeHtml(status.devServer.ingress)}</p>
     </header>
@@ -182,7 +184,7 @@ export function renderHtml(status) {
         <tbody>
           <tr>
             <td>Lovelace card</td>
-            <td>Home Assistant dashboard resource UI, then dashboard card YAML/UI. Add the module URL as a JavaScript module resource under <code>Settings &gt; Dashboards</code>, then use the listed <code>custom:...</code> card type.</td>
+            <td>Home Assistant dashboard resource UI, then dashboard card YAML/UI. Add <code>${escapeHtml(status.allPagesModuleUrl)}</code> once as a JavaScript module resource under <code>Settings &gt; Dashboards</code>, then use the listed <code>custom:...</code> card type.</td>
             <td>A dashboard card. Use <code>panel: true</code> on the view when the page should fill the view content area.</td>
             <td>Preferred setup. Easiest to try and edit from the dashboard UI. It still lives inside a Lovelace dashboard and follows Lovelace routing.</td>
           </tr>

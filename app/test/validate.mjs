@@ -6,7 +6,7 @@ import { loadConfig } from '../src/config.mjs';
 import { createLogger } from '../src/logger.mjs';
 import { validatePaths } from '../src/paths.mjs';
 import { discoverPages } from '../src/discover-pages.mjs';
-import { buildPage, removePageOutput } from '../src/build-page.mjs';
+import { buildPage, removePageOutput, writeAllPagesModule } from '../src/build-page.mjs';
 import { StatusStore } from '../src/status.mjs';
 
 const root = await mkdtemp(path.join(tmpdir(), 'hass-vue-'));
@@ -76,6 +76,11 @@ try {
   const first = await buildPage(page, paths, logger, 'test-initial');
   status.recordBuild(page, first);
   assert.equal(first.status, 'success');
+  await writeAllPagesModule(pages, paths, logger);
+  let allPagesModule = await readFile(path.join(paths.outputPagesRoot, 'all.js'), 'utf8');
+  assert.match(allPagesModule, /import '\.\/test-page\/page\.js';/);
+  assert.match(allPagesModule, /export const pages =/);
+  assert.match(allPagesModule, /custom:hass-vue-page-test-page/);
   let pageModule = await readFile(page.outputPath, 'utf8');
   assert.match(pageModule, /customElements/);
   assert.match(pageModule, /manifest\.json/);
@@ -125,6 +130,9 @@ try {
   const removed = await removePageOutput(page, logger);
   assert.equal(removed, true);
   await assert.rejects(readFile(page.outputPath, 'utf8'));
+  await writeAllPagesModule(pages, paths, logger);
+  allPagesModule = await readFile(path.join(paths.outputPagesRoot, 'all.js'), 'utf8');
+  assert.doesNotMatch(allPagesModule, /test-page\/page\.js/);
 
   await status.write(logger);
   await readFile(path.join(paths.outputRoot, 'status.html'), 'utf8');

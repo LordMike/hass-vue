@@ -26,6 +26,7 @@ Failed builds keep the last successful output in place, and the add-on writes a 
 - One independent output module per page folder
 - Lovelace card, `panel_custom`, and plain browser module support
 - Stable `/local/hass-vue/pages/<slug>/page.js` URLs with cache-busting versioned modules
+- Stable `/local/hass-vue/pages/all.js` macro module that registers every successfully built page
 - Last-good output preserved when a build fails
 - Status HTML/JSON with generated YAML snippets
 - Screenshot readiness events and snapshot mode for deterministic captures
@@ -43,9 +44,10 @@ The add-on builds it to:
 ```text
 /config/www/hass-vue/pages/dashboard/page.js
 /local/hass-vue/pages/dashboard/page.js
+/local/hass-vue/pages/all.js
 ```
 
-Add the generated module as a JavaScript module resource in Home Assistant's dashboard resource UI. In storage mode this is managed from `Settings > Dashboards`, not from the card YAML itself.
+Add `/local/hass-vue/pages/all.js` as a JavaScript module resource in Home Assistant's dashboard resource UI. In storage mode this is managed from `Settings > Dashboards`, not from the card YAML itself. The `all.js` module imports every successfully built page, so one resource covers all generated card types.
 
 Then use the generated card type in a dashboard view. Lovelace card mode is the preferred setup; use a panel view when the page should fill the dashboard content area:
 

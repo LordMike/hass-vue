@@ -134,6 +134,25 @@ export async function removeOrphanOutputs(pages, paths, logger) {
   return removed;
 }
 
+export async function writeAllPagesModule(pages, paths, logger) {
+  const builtPages = [];
+  for (const page of [...pages].sort((a, b) => a.slug.localeCompare(b.slug))) {
+    try {
+      await readFile(page.outputPath, 'utf8');
+      builtPages.push(page);
+    } catch {
+      // Skip pages that have not produced a successful output yet.
+    }
+  }
+
+  const allPath = path.join(paths.outputPagesRoot, 'all.js');
+  await writeFile(allPath, allPagesSource(builtPages));
+  logger.info('all pages module written', {
+    pages: builtPages.length,
+    url: `${paths.localOutputRoot}/pages/all.js`
+  });
+}
+
 function entrySource(page) {
   const componentPath = JSON.stringify(page.sourcePath);
   return `import Page from ${componentPath};
@@ -160,6 +179,29 @@ defineHassVuePageElement({
   component: Page
 });
 `;
+}
+
+function allPagesSource(pages) {
+  const imports = pages
+    .map((page) => `import './${escapeJsModuleSegment(page.slug)}/page.js';`)
+    .join('\n');
+  const metadata = pages.map((page) => ({
+    slug: page.slug,
+    title: page.title,
+    description: page.description,
+    elementName: page.elementName,
+    cardType: page.cardType,
+    resourceUrl: page.resourceUrl
+  }));
+  return `${imports}
+
+export const pages = ${JSON.stringify(metadata, null, 2)};
+export const cardTypes = pages.map((page) => page.cardType);
+`;
+}
+
+function escapeJsModuleSegment(segment) {
+  return encodeURIComponent(segment).replace(/'/g, '%27');
 }
 
 function hassVueCssInject(cssCode, options = {}) {

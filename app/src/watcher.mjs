@@ -1,7 +1,7 @@
 import path from 'node:path';
 import chokidar from 'chokidar';
 import { discoverPages } from './discover-pages.mjs';
-import { buildPage, removeOrphanOutputs } from './build-page.mjs';
+import { buildPage, removeOrphanOutputs, writeAllPagesModule } from './build-page.mjs';
 
 export class PageWatcher {
   constructor(paths, options, logger, statusStore) {
@@ -20,6 +20,7 @@ export class PageWatcher {
     await this.statusStore.write(this.logger);
     this.pagesBySlug = new Map(pages.map((page) => [page.slug, page]));
     await removeOrphanOutputs(pages, this.paths, this.logger);
+    await writeAllPagesModule(pages, this.paths, this.logger);
 
     for (const page of pages) {
       this.logger.info('usage', {
@@ -30,6 +31,7 @@ export class PageWatcher {
       });
       const result = await buildPage(page, this.paths, this.logger, 'startup');
       this.statusStore.recordBuild(page, result);
+      await writeAllPagesModule(pages, this.paths, this.logger);
       await this.statusStore.write(this.logger);
     }
   }
@@ -95,6 +97,7 @@ export class PageWatcher {
       const result = await buildPage(page, this.paths, this.logger, reason);
       this.statusStore.recordBuild(page, result);
     }
+    await writeAllPagesModule(pages, this.paths, this.logger);
     await this.statusStore.write(this.logger);
   }
 }
