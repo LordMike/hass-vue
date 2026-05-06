@@ -45,18 +45,16 @@ The add-on builds it to:
 /local/hass-vue/pages/dashboard/page.js
 ```
 
-Add the generated module as a Lovelace resource:
+Add the generated module as a JavaScript module resource in Home Assistant's dashboard resource UI. In storage mode this is managed from `Settings > Dashboards`, not from the card YAML itself.
+
+Then use the generated card type in a dashboard view. Lovelace card mode is the preferred setup; use a panel view when the page should fill the dashboard content area:
 
 ```yaml
-resources:
-  - url: /local/hass-vue/pages/dashboard/page.js
-    type: module
-```
-
-Use the generated card type:
-
-```yaml
-type: custom:hass-vue-page-dashboard
+views:
+  - title: Dashboard
+    panel: true # Make this full screen.
+    cards:
+      - type: custom:hass-vue-page-dashboard
 ```
 
 The same page can be mounted as a Home Assistant sidebar panel with `panel_custom`:

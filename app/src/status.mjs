@@ -91,8 +91,7 @@ export class StatusStore {
         lastFailedBuildTime: page.lastFailedAt,
         buildDurationMs: page.durationMs,
         errorSummary: page.errorSummary,
-        lovelaceYaml: `resources:\n  - url: ${page.resourceUrl}\n    type: module\n\nviews:\n  - title: ${page.title}\n    cards:\n      - type: ${page.cardType}`,
-        lovelacePanelYaml: `resources:\n  - url: ${page.resourceUrl}\n    type: module\n\nviews:\n  - title: ${page.title}\n    panel: true\n    cards:\n      - type: ${page.cardType}`,
+        lovelaceYaml: `views:\n  - title: ${page.title}\n    panel: true # Make this full screen.\n    cards:\n      - type: ${page.cardType}`,
         panelCustomYaml: `panel_custom:\n  - name: ${page.panelName}  # Must exactly match the generated element name.\n    sidebar_title: ${page.title}\n    sidebar_icon: mdi:tablet-dashboard\n    module_url: ${page.resourceUrl}\n    embed_iframe: false\n    require_admin: false`,
         browserModuleExample: `<div id="hass-vue-root"></div>\n<script type="module">\n  import { mountHassVuePage } from '${page.resourceUrl}';\n\n  const mounted = mountHassVuePage(document.getElementById('hass-vue-root'));\n\n  // Optional outside Home Assistant:\n  // mounted.updateHass(fakeOrRealHassObject);\n  // mounted.unmount();\n</script>`
       }))
@@ -119,10 +118,9 @@ export function renderHtml(status) {
         <dt>Duration</dt><dd>${page.buildDurationMs ?? 'n/a'} ms</dd>
         <dt>Error</dt><dd>${escapeHtml(page.errorSummary || '')}</dd>
       </dl>
-      <h3>Lovelace card</h3>
+      <h3>Preferred: Lovelace card</h3>
+      <p>Add <code>${escapeHtml(page.resourceUrl)}</code> as a JavaScript module resource in Home Assistant's dashboard resource UI, then add this card to a dashboard view. The example uses Lovelace panel mode so the card fills the view.</p>
       <pre>${escapeHtml(page.lovelaceYaml)}</pre>
-      <h3>Lovelace panel-mode view</h3>
-      <pre>${escapeHtml(page.lovelacePanelYaml)}</pre>
       <h3>Home Assistant configuration.yaml panel_custom</h3>
       <p>Add this block to Home Assistant <code>configuration.yaml</code>, then restart Home Assistant Core.</p>
       <pre>${escapeHtml(page.panelCustomYaml)}</pre>
@@ -184,9 +182,9 @@ export function renderHtml(status) {
         <tbody>
           <tr>
             <td>Lovelace card</td>
-            <td>Dashboard resources and dashboard view YAML/UI. Add the module URL as a JavaScript module resource, then use the listed <code>custom:...</code> card type.</td>
-            <td>A normal dashboard card. Use <code>panel: true</code> on the view if you want the page to fill the view content area.</td>
-            <td>Easiest to try and edit from the dashboard UI. It still lives inside a Lovelace dashboard and follows Lovelace routing.</td>
+            <td>Home Assistant dashboard resource UI, then dashboard card YAML/UI. Add the module URL as a JavaScript module resource under <code>Settings &gt; Dashboards</code>, then use the listed <code>custom:...</code> card type.</td>
+            <td>A dashboard card. Use <code>panel: true</code> on the view when the page should fill the view content area.</td>
+            <td>Preferred setup. Easiest to try and edit from the dashboard UI. It still lives inside a Lovelace dashboard and follows Lovelace routing.</td>
           </tr>
           <tr>
             <td><code>panel_custom</code></td>
