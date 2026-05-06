@@ -6,6 +6,7 @@ const DEFAULT_OPTIONS = {
   dev_server: false,
   log_level: 'info',
   create_example: true,
+  clean_output: false,
   source_root: '/config/hass-vue',
   output_root: '/config/www/hass-vue'
 };
@@ -20,6 +21,7 @@ export async function loadConfig(optionsPath = process.env.HASS_VUE_OPTIONS_PATH
 
   const config = { ...DEFAULT_OPTIONS, ...raw };
   config.dev_server = Boolean(config.dev_server);
+  config.clean_output = Boolean(config.clean_output);
   config.create_example = config.create_example !== false;
   if (!['info', 'debug'].includes(config.log_level)) config.log_level = 'info';
   config.source_root = normalizeUserConfigPath(config.source_root, DEFAULT_OPTIONS.source_root, 'source_root');

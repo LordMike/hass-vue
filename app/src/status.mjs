@@ -76,6 +76,12 @@ export class StatusStore {
           ? 'Ingress exposes this status/dev endpoint. Static /local output remains authoritative.'
           : 'Disabled'
       },
+      cleanOutput: {
+        enabled: Boolean(this.options.clean_output),
+        description: this.options.clean_output
+          ? 'Managed outputs for removed pages are deleted.'
+          : 'Managed outputs for removed pages are left in place.'
+      },
       pages: [...this.pages.values()].sort((a, b) => a.slug.localeCompare(b.slug)).map((page) => ({
         slug: page.slug,
         title: page.title,
@@ -213,6 +219,7 @@ export function renderHtml(status) {
       <p>All pages module <a href="${escapeAttr(status.allPagesModuleUrl)}"><code>${escapeHtml(status.allPagesModuleUrl)}</code></a></p>
       <p>Status JSON <a href="${escapeAttr(status.localOutputRoot)}/status.json"><code>${escapeHtml(status.localOutputRoot)}/status.json</code></a></p>
       <p>Dev server: ${escapeHtml(status.devServer.ingress)}</p>
+      <p>Clean output: ${escapeHtml(status.cleanOutput.description)}</p>
     </header>
     <details id="guide-section" open>
       <summary>Guide</summary>

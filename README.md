@@ -91,6 +91,7 @@ Edit that page, wait for a successful rebuild in the add-on log or status page, 
 | `dev_server` | no | `false` | Exposes the status/development endpoint through Home Assistant Ingress on port `8099`. Static `/local` output remains authoritative. |
 | `log_level` | no | `info` | Use `debug` while diagnosing watcher or build behavior. |
 | `create_example` | no | `true` | Creates the bundled example page when `/config/hass-vue/pages` has no page folders. |
+| `clean_output` | no | `false` | Removes managed output for pages that no longer exist under `source_root`. Disabled by default so existing files in the output folder are left alone. |
 | `source_root` | no | `/config/hass-vue` | Home Assistant config path that contains `pages/` and `shared/`. Relative values are treated as folders under `/config`. |
 | `output_root` | no | `/config/www/hass-vue` | Home Assistant config path where built browser modules are written. Keep this under `/config/www` so Home Assistant can serve it as `/local`. For example, `/config/www/custom-vue` is served as `/local/custom-vue`. |
 

@@ -19,7 +19,7 @@ export class PageWatcher {
     this.statusStore.syncDiscovered(pages);
     await this.statusStore.write(this.logger);
     this.pagesBySlug = new Map(pages.map((page) => [page.slug, page]));
-    await removeOrphanOutputs(pages, this.paths, this.logger);
+    await this.removeOrphanOutputsIfEnabled(pages);
     await writeAllPagesModule(pages, this.paths, this.logger);
 
     for (const page of pages) {
@@ -89,7 +89,7 @@ export class PageWatcher {
     const { pages } = await discoverPages(this.paths, this.options, this.logger);
     this.statusStore.syncDiscovered(pages);
     this.pagesBySlug = new Map(pages.map((page) => [page.slug, page]));
-    const removed = await removeOrphanOutputs(pages, this.paths, this.logger);
+    const removed = await this.removeOrphanOutputsIfEnabled(pages);
     for (const removedSlug of removed) this.statusStore.recordRemoval(removedSlug);
 
     const page = this.pagesBySlug.get(slug);
@@ -99,6 +99,11 @@ export class PageWatcher {
     }
     await writeAllPagesModule(pages, this.paths, this.logger);
     await this.statusStore.write(this.logger);
+  }
+
+  async removeOrphanOutputsIfEnabled(pages) {
+    if (!this.options.clean_output) return [];
+    return removeOrphanOutputs(pages, this.paths, this.logger);
   }
 }
 

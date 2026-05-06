@@ -8,6 +8,7 @@ import { validatePaths } from '../src/paths.mjs';
 import { discoverPages } from '../src/discover-pages.mjs';
 import { buildPage, removePageOutput, writeAllPagesModule } from '../src/build-page.mjs';
 import { StatusStore } from '../src/status.mjs';
+import { PageWatcher } from '../src/watcher.mjs';
 
 const root = await mkdtemp(path.join(tmpdir(), 'hass-vue-'));
 const haConfigRoot = path.join(root, 'ha-config');
@@ -20,6 +21,7 @@ try {
   const loadedDefaults = await loadConfig(path.join(root, 'missing-options.json'));
   assert.equal(loadedDefaults.source_root, '/config/hass-vue');
   assert.equal(loadedDefaults.output_root, '/config/www/hass-vue');
+  assert.equal(loadedDefaults.clean_output, false);
   assert.equal(loadedDefaults.internal_source_root, path.join(haConfigRoot, 'hass-vue'));
   assert.equal(loadedDefaults.internal_output_root, path.join(haConfigRoot, 'www', 'hass-vue'));
 
@@ -27,17 +29,29 @@ try {
   await writeFile(customOptionsPath, JSON.stringify({
     source_root: '/config/custom-vue',
     output_root: '/config/www/custom-vue',
+    clean_output: true,
     create_example: false
   }));
   const loadedCustom = await loadConfig(customOptionsPath);
   assert.equal(loadedCustom.source_root, '/config/custom-vue');
   assert.equal(loadedCustom.output_root, '/config/www/custom-vue');
+  assert.equal(loadedCustom.clean_output, true);
   assert.equal(loadedCustom.internal_source_root, path.join(haConfigRoot, 'custom-vue'));
   assert.equal(loadedCustom.internal_output_root, path.join(haConfigRoot, 'www', 'custom-vue'));
   const customPaths = await validatePaths(logger, loadedCustom);
   assert.equal(customPaths.sourceRoot, path.join(haConfigRoot, 'custom-vue'));
   assert.equal(customPaths.outputRoot, path.join(haConfigRoot, 'www', 'custom-vue'));
   assert.equal(customPaths.localOutputRoot, '/local/custom-vue');
+
+  const orphanOutputDir = path.join(customPaths.outputPagesRoot, 'old-page');
+  await mkdir(orphanOutputDir, { recursive: true });
+  await writeFile(path.join(orphanOutputDir, '.hass-vue-page-output'), 'managed\n');
+  const disabledCleanupWatcher = new PageWatcher(customPaths, { clean_output: false }, logger, new StatusStore(customPaths, {}));
+  assert.deepEqual(await disabledCleanupWatcher.removeOrphanOutputsIfEnabled([]), []);
+  await readFile(path.join(orphanOutputDir, '.hass-vue-page-output'), 'utf8');
+  const enabledCleanupWatcher = new PageWatcher(customPaths, { clean_output: true }, logger, new StatusStore(customPaths, {}));
+  assert.deepEqual(await enabledCleanupWatcher.removeOrphanOutputsIfEnabled([]), ['old-page']);
+  await assert.rejects(readFile(path.join(orphanOutputDir, '.hass-vue-page-output'), 'utf8'));
 
   const invalidOutsideConfigPath = path.join(root, 'invalid-outside-config.json');
   await writeFile(invalidOutsideConfigPath, JSON.stringify({ source_root: '/share/hass-vue' }));
