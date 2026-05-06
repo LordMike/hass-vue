@@ -151,6 +151,7 @@ try {
   await status.write(logger);
   const statusHtml = await readFile(path.join(paths.outputRoot, 'status.html'), 'utf8');
   assert.match(statusHtml, /<details id="guide-section" open>/);
+  assert.match(statusHtml, /id="refresh-status"/);
   assert.match(statusHtml, /data-page-tab=/);
   assert.match(statusHtml, /data-page-panel=/);
   await readFile(path.join(paths.outputRoot, 'status.json'), 'utf8');

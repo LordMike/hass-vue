@@ -107,6 +107,7 @@ export class StatusStore {
 }
 
 export function renderHtml(status) {
+  const cleanOutputDescription = status.cleanOutput?.description || 'Managed outputs for removed pages are left in place.';
   const pageTabs = status.pages.map((page, index) => {
     const active = index === 0;
     return `<button type="button" role="tab" id="tab-${escapeAttr(page.slug)}" aria-controls="page-${escapeAttr(page.slug)}" aria-selected="${active ? 'true' : 'false'}" data-page-tab="${escapeAttr(page.slug)}">
@@ -204,6 +205,11 @@ export function renderHtml(status) {
     }
     .tabs button[aria-selected="true"] code, .tabs button[aria-selected="true"] .ok { color: #12621f; }
     .tabs button[aria-selected="true"] .failed { color: #9a1111; }
+    .section-heading { align-items: center; display: flex; gap: 12px; justify-content: space-between; margin: 0 0 16px; }
+    .section-heading h2 { margin: 0; }
+    .refresh-button { background: #f3f3f3; border: 1px solid #777; color: #111; cursor: pointer; font: inherit; padding: 6px 10px; }
+    .refresh-button:hover { background: #fff; }
+    .refresh-button:focus-visible { outline: 3px solid #2b6cb0; outline-offset: 2px; }
     .page-tabs-section { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
     article[role="tabpanel"] { border: 2px solid #777; border-top: 0; padding: 20px; }
     [hidden] { display: none !important; }
@@ -219,7 +225,7 @@ export function renderHtml(status) {
       <p>All pages module <a href="${escapeAttr(status.allPagesModuleUrl)}"><code>${escapeHtml(status.allPagesModuleUrl)}</code></a></p>
       <p>Status JSON <a href="${escapeAttr(status.localOutputRoot)}/status.json"><code>${escapeHtml(status.localOutputRoot)}/status.json</code></a></p>
       <p>Dev server: ${escapeHtml(status.devServer.ingress)}</p>
-      <p>Clean output: ${escapeHtml(status.cleanOutput.description)}</p>
+      <p>Clean output: ${escapeHtml(cleanOutputDescription)}</p>
     </header>
     <details id="guide-section" open>
       <summary>Guide</summary>
@@ -321,7 +327,10 @@ markReady({ reason: 'chart-rendered' });`)}</pre>
       </section>
     </details>
     <section class="page-tabs-section">
-      <h2>Built Pages</h2>
+      <div class="section-heading">
+        <h2>Built Pages</h2>
+        <button type="button" class="refresh-button" id="refresh-status">Refresh</button>
+      </div>
       ${pageTabs ? `<div class="tabs" role="tablist" aria-label="Built pages">${pageTabs}</div>` : '<p>No pages discovered.</p>'}
     </section>
     ${pagePanels}
@@ -340,13 +349,27 @@ markReady({ reason: 'chart-rendered' });`)}</pre>
 
       const tabs = [...document.querySelectorAll('[data-page-tab]')];
       const panels = [...document.querySelectorAll('[data-page-panel]')];
+      const tabKey = 'hass-vue-status-selected-tab';
       const selectTab = (slug) => {
         for (const tab of tabs) tab.setAttribute('aria-selected', String(tab.dataset.pageTab === slug));
         for (const panel of panels) panel.hidden = panel.dataset.pagePanel !== slug;
+        try {
+          localStorage.setItem(tabKey, slug);
+        } catch {
+        }
       };
+      try {
+        const storedTab = localStorage.getItem(tabKey);
+        if (tabs.some((tab) => tab.dataset.pageTab === storedTab)) selectTab(storedTab);
+      } catch {
+      }
       for (const tab of tabs) {
         tab.addEventListener('click', () => selectTab(tab.dataset.pageTab));
       }
+
+      document.getElementById('refresh-status')?.addEventListener('click', () => {
+        location.reload();
+      });
     })();
   </script>
 </body>
