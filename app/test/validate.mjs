@@ -135,7 +135,10 @@ try {
   assert.doesNotMatch(allPagesModule, /test-page\/page\.js/);
 
   await status.write(logger);
-  await readFile(path.join(paths.outputRoot, 'status.html'), 'utf8');
+  const statusHtml = await readFile(path.join(paths.outputRoot, 'status.html'), 'utf8');
+  assert.match(statusHtml, /<details id="guide-section" open>/);
+  assert.match(statusHtml, /data-page-tab=/);
+  assert.match(statusHtml, /data-page-panel=/);
   await readFile(path.join(paths.outputRoot, 'status.json'), 'utf8');
 
   console.log(`[info] validation ok root=${root}`);

@@ -101,8 +101,16 @@ export class StatusStore {
 }
 
 export function renderHtml(status) {
-  const pageRows = status.pages.map((page) => `
-    <article id="page-${escapeAttr(page.slug)}">
+  const pageTabs = status.pages.map((page, index) => {
+    const active = index === 0;
+    return `<button type="button" role="tab" id="tab-${escapeAttr(page.slug)}" aria-controls="page-${escapeAttr(page.slug)}" aria-selected="${active ? 'true' : 'false'}" data-page-tab="${escapeAttr(page.slug)}">
+      <span>${escapeHtml(page.title)}</span>
+      <span class="${page.buildStatus === 'failed' ? 'failed' : 'ok'}">${escapeHtml(page.buildStatus)}</span>
+    </button>`;
+  }).join('\n');
+
+  const pagePanels = status.pages.map((page, index) => `
+    <article id="page-${escapeAttr(page.slug)}" role="tabpanel" aria-labelledby="tab-${escapeAttr(page.slug)}" data-page-panel="${escapeAttr(page.slug)}"${index === 0 ? '' : ' hidden'}>
       <h2>${escapeHtml(page.title)} <code>${escapeHtml(page.slug)}</code></h2>
       ${page.description ? `<p>${escapeHtml(page.description)}</p>` : ''}
       <dl>
@@ -122,11 +130,15 @@ export function renderHtml(status) {
       <h3>Preferred: Lovelace card</h3>
       <p>Add <code>${escapeHtml(status.allPagesModuleUrl)}</code> once as a JavaScript module resource in Home Assistant's dashboard resource UI, then add this card to a dashboard view. The example uses Lovelace panel mode so the card fills the view.</p>
       <pre>${escapeHtml(page.lovelaceYaml)}</pre>
-      <h3>Home Assistant configuration.yaml panel_custom</h3>
-      <p>Add this block to Home Assistant <code>configuration.yaml</code>, then restart Home Assistant Core.</p>
-      <pre>${escapeHtml(page.panelCustomYaml)}</pre>
-      <h3>Plain browser module</h3>
-      <pre>${escapeHtml(page.browserModuleExample)}</pre>
+      <details>
+        <summary>Home Assistant configuration.yaml panel_custom</summary>
+        <p>Add this block to Home Assistant <code>configuration.yaml</code>, then restart Home Assistant Core.</p>
+        <pre>${escapeHtml(page.panelCustomYaml)}</pre>
+      </details>
+      <details>
+        <summary>Plain browser module</summary>
+        <pre>${escapeHtml(page.browserModuleExample)}</pre>
+      </details>
     </article>`).join('\n');
 
   return `<!doctype html>
@@ -141,10 +153,14 @@ export function renderHtml(status) {
     body { margin: 0; padding: 24px; font-family: system-ui, sans-serif; color: #111; background: #fff; }
     main { max-width: 1100px; margin: 0 auto; }
     header, article { border-bottom: 1px solid #bbb; padding: 0 0 20px; margin-bottom: 20px; }
-    section { border-bottom: 1px solid #bbb; padding: 0 0 20px; margin-bottom: 20px; }
+    section, details { border-bottom: 1px solid #bbb; padding: 0 0 20px; margin-bottom: 20px; }
+    article details { margin: 18px 0 0; padding: 0 0 12px; }
     h1 { margin: 0 0 8px; font-size: 28px; }
     h2 { margin: 0 0 16px; font-size: 22px; }
     h3 { margin: 18px 0 8px; font-size: 17px; }
+    summary { cursor: pointer; font-size: 22px; font-weight: 700; margin: 0 0 16px; }
+    article summary { font-size: 17px; margin: 0; }
+    article details[open] summary { margin: 0 0 8px; }
     dl { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 8px 16px; }
     dt { font-weight: 700; }
     dd { margin: 0; overflow-wrap: anywhere; }
@@ -156,6 +172,35 @@ export function renderHtml(status) {
     pre { padding: 12px; overflow: auto; }
     .ok { color: #12621f; font-weight: 700; }
     .failed { color: #9a1111; font-weight: 700; }
+    .tabs { border-bottom: 2px solid #777; display: flex; flex-wrap: wrap; gap: 2px; margin: 0 0 0; padding: 0 4px; }
+    .tabs button {
+      align-items: center;
+      background: #eee;
+      border: 2px solid #aaa;
+      border-bottom: 0;
+      color: #111;
+      cursor: pointer;
+      display: inline-flex;
+      font: inherit;
+      gap: 8px;
+      margin: 0 0 -2px;
+      padding: 10px 14px;
+    }
+    .tabs button:hover { background: #fafafa; border-color: #777; }
+    .tabs button:focus-visible { outline: 3px solid #2b6cb0; outline-offset: -3px; }
+    .tabs button[aria-selected="true"] {
+      background: #fff;
+      border-color: #777;
+      border-bottom: 2px solid #fff;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+    }
+    .tabs button[aria-selected="true"] code, .tabs button[aria-selected="true"] .ok { color: #12621f; }
+    .tabs button[aria-selected="true"] .failed { color: #9a1111; }
+    .page-tabs-section { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
+    article[role="tabpanel"] { border: 2px solid #777; border-top: 0; padding: 20px; }
+    [hidden] { display: none !important; }
   </style>
 </head>
 <body>
@@ -169,7 +214,9 @@ export function renderHtml(status) {
       <p>Status JSON <a href="${escapeAttr(status.localOutputRoot)}/status.json"><code>${escapeHtml(status.localOutputRoot)}/status.json</code></a></p>
       <p>Dev server: ${escapeHtml(status.devServer.ingress)}</p>
     </header>
-    <section>
+    <details id="guide-section" open>
+      <summary>Guide</summary>
+      <section>
       <h2>How To Use A Built Page</h2>
       <p>Each page builds to one browser JavaScript module. Use it as a Lovelace card, a Home Assistant <code>panel_custom</code>, or a plain module mounted into any web page.</p>
       <table>
@@ -211,8 +258,8 @@ export function renderHtml(status) {
       <p><code>panel_custom</code> belongs in Home Assistant <code>configuration.yaml</code>. Use <code>embed_iframe: false</code> so Home Assistant loads the module as a frontend custom element and assigns the <code>hass</code> object.</p>
       <p><code>page.js</code> is a stable loader. It reads <code>manifest.json</code> without cache and imports the latest versioned module file. Static mode does not live-reload the browser; after a successful rebuild, refresh the HA page that uses the module.</p>
       <p>For automation, wait for <code>data-hass-vue-ready="true"</code> on the custom element or listen for <code>hass-vue-ready</code>. The default readiness means mounted and painted. Snapshot readiness is opt-in with <code>hass-vue-snapshot=1</code>.</p>
-    </section>
-    <section>
+      </section>
+      <section>
       <h2>Screenshot Readiness</h2>
       <p>DOM loaded is too early for screenshots. hass-vue exposes an explicit readiness signal from the mounted page.</p>
       <table>
@@ -264,15 +311,37 @@ await page.evaluate(() => new Promise((resolve) => {
 markBusy({ reason: 'loading-chart' });
 // render/fetch/load images...
 markReady({ reason: 'chart-rendered' });`)}</pre>
-    </section>
-    <section class="summary">
+      </section>
+    </details>
+    <section class="page-tabs-section">
       <h2>Built Pages</h2>
-      <ul>
-        ${status.pages.map((page) => `<li><a href="#page-${escapeAttr(page.slug)}">${escapeHtml(page.title)}</a> <code>${escapeHtml(page.cardType)}</code> <span class="${page.buildStatus === 'failed' ? 'failed' : 'ok'}">${escapeHtml(page.buildStatus)}</span> <span>${escapeHtml(page.lastBuildTime || 'never')}</span></li>`).join('\n') || '<li>No pages discovered.</li>'}
-      </ul>
+      ${pageTabs ? `<div class="tabs" role="tablist" aria-label="Built pages">${pageTabs}</div>` : '<p>No pages discovered.</p>'}
     </section>
-    ${pageRows || '<p>No pages discovered.</p>'}
+    ${pagePanels}
   </main>
+  <script>
+    (() => {
+      const guide = document.getElementById('guide-section');
+      const guideKey = 'hass-vue-status-guide-open';
+      try {
+        const stored = localStorage.getItem(guideKey);
+        if (stored === '0') guide.open = false;
+        if (stored === '1') guide.open = true;
+        guide.addEventListener('toggle', () => localStorage.setItem(guideKey, guide.open ? '1' : '0'));
+      } catch {
+      }
+
+      const tabs = [...document.querySelectorAll('[data-page-tab]')];
+      const panels = [...document.querySelectorAll('[data-page-panel]')];
+      const selectTab = (slug) => {
+        for (const tab of tabs) tab.setAttribute('aria-selected', String(tab.dataset.pageTab === slug));
+        for (const panel of panels) panel.hidden = panel.dataset.pagePanel !== slug;
+      };
+      for (const tab of tabs) {
+        tab.addEventListener('click', () => selectTab(tab.dataset.pageTab));
+      }
+    })();
+  </script>
 </body>
 </html>
 `;
