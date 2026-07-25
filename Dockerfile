@@ -1,14 +1,5 @@
 ARG BUILD_FROM=ghcr.io/home-assistant/base:3.21
-ARG HASS_VERSION=local
 FROM ${BUILD_FROM}
-
-ARG HASS_VERSION
-ENV HASS_VUE_VERSION=${HASS_VERSION}
-
-LABEL \
-  io.hass.version="${HASS_VERSION}" \
-  io.hass.type="app" \
-  io.hass.arch="aarch64|amd64"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -17,6 +8,14 @@ RUN apk add --no-cache nodejs npm
 WORKDIR /app
 COPY app/package.json app/package-lock.json* ./
 RUN npm ci --ignore-scripts --omit=dev
+
+ARG HASS_VERSION=local
+ENV HASS_VUE_VERSION=${HASS_VERSION}
+
+LABEL \
+  io.hass.version="${HASS_VERSION}" \
+  io.hass.type="app" \
+  io.hass.arch="aarch64|amd64"
 
 COPY app/src ./src
 COPY app/test ./test
