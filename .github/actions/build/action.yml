@@ -1,0 +1,27 @@
+name: Build hass-vue
+description: Install dependencies and validate the hass-vue application
+
+# Repository-owned build contract:
+# - CI provides the checked-out source and CI_* environment variables.
+# - This action validates the repository without publishing.
+# - Docker publication is handled separately by the managed publisher.
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      with:
+        node-version: 24
+        cache: npm
+        cache-dependency-path: app/package-lock.json
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: app
+      run: npm ci --ignore-scripts
+
+    - name: Validate application
+      shell: bash
+      working-directory: app
+      run: npm run validate
