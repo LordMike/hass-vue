@@ -9,11 +9,11 @@ WORKDIR /app
 COPY app/package.json app/package-lock.json* ./
 RUN npm ci --ignore-scripts --omit=dev
 
-ARG HASS_VERSION=local
-ENV HASS_VUE_VERSION=${HASS_VERSION}
+ARG BUILD_VERSION=local
+ENV HASS_VUE_VERSION=${BUILD_VERSION}
 
 LABEL \
-  io.hass.version="${HASS_VERSION}" \
+  io.hass.version="${BUILD_VERSION}" \
   io.hass.type="app" \
   io.hass.arch="aarch64|amd64"
 
